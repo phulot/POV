@@ -1,9 +1,10 @@
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
-data\*
+data/*
 Jcg.jar
-.settings\*
+.settings/*
+.classpath
 
 # Folder config file
 Desktop.ini
