@@ -1,6 +1,8 @@
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
+data\*
+Jcg.jar
 
 # Folder config file
 Desktop.ini
@@ -13,6 +15,13 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+#dataFiles
+*.pov
+*.sma
+*.node
+*.ele
+*.txt
 
 # Windows shortcuts
 *.lnk
