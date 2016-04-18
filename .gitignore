@@ -3,6 +3,7 @@ Thumbs.db
 ehthumbs.db
 data\*
 Jcg.jar
+.settings\*
 
 # Folder config file
 Desktop.ini
