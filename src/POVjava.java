@@ -38,12 +38,12 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  Meshname = "brain";
+	  Meshname = "mito_t";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = pov.loadpov("data/"+Meshname,this);  // loads saved model from file
+	  Mesh = pov.loadsma("data/"+Meshname,3f,this);  // loads saved model from file
 	//  Mesh.loadsma("data/"+Meshname, 5f);
 	//  Mesh.checkMesh();
-	  Mesh.orientMesh();
+	//  Mesh.orientMesh();
 	//  Mesh.savepov(Meshname);
 	//  Mesh.createRandomMesh(1100,1);
 	  Sub = new subSurface(Mesh);

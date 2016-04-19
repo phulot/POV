@@ -109,6 +109,10 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		}
 		System.out.println("marked tetrahedron : " +k);
 		k = 0;
+		for (int i=0;i<12*p.nv;i++){
+			k=Math.max(k,s.EdgeNbrMarkedNeighbors(i));
+		}
+		System.out.println("max neighbors number : "+k);
 //		for (int i = 0; i < p.nt; i++) {
 //			if (s.isIsolated(i) == 0)
 //				k++;
@@ -192,43 +196,43 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		
 	}
 
-	
-	public void decostruct(){
-		int nbr = 0;
-		int nbr2 = 0;
-		boolean mod =true;
-		while(mod){
-			mod=false;
-			for (int i = 0; i < p.nt; i++) {
-				if (s.marked[4 * i]) {
-					int k = 0;
-					for (int j = 0; j < 4; j++)
-						if (s.marked[p.O[4 * i + j]])
-							k++;
-					if (k == 1) {
-						nbr++;
-						mod = true;
-						s.unmarkTetrahedron(i);
-					}
-				}
-//				for (int c = 0; c < 12 * p.nt; c++) {
-//					int k = s.markedNumber(p.edgeNeighbours(c));
-//					if (k == 3) {
-//						k = s.markedNumber(p.vertexNeighbours(c));
-//						if (k==3){
-//							nbr2++;
-//							mod=true;
-//							for (Integer t : p.edgeNeighbours(c)){
-//								s.unmarkTetrahedron(t);
-//							}
-//						}
+//	
+//	public void decostruct(){
+//		int nbr = 0;
+//		int nbr2 = 0;
+//		boolean mod =true;
+//		while(mod){
+//			mod=false;
+//			for (int i = 0; i < p.nt; i++) {
+//				if (s.marked[4 * i]) {
+//					int k = 0;
+//					for (int j = 0; j < 4; j++)
+//						if (s.marked[p.O[4 * i + j]])
+//							k++;
+//					if (k == 1) {
+//						nbr++;
+//						mod = true;
+//						s.unmarkTetrahedron(i);
 //					}
 //				}
-			}
-		}
-		System.out.println("nbr erasable tetrahedrons : "+nbr);
-		System.out.println("nbr wrong erasable tetrahedrons : "+nbr2/3);
-	}
+////				for (int c = 0; c < 12 * p.nt; c++) {
+////					int k = s.markedNumber(p.edgeNeighbours(c));
+////					if (k == 3) {
+////						k = s.markedNumber(p.vertexNeighbours(c));
+////						if (k==3){
+////							nbr2++;
+////							mod=true;
+////							for (Integer t : p.edgeNeighbours(c)){
+////								s.unmarkTetrahedron(t);
+////							}
+////						}
+////					}
+////				}
+//			}
+//		}
+//		System.out.println("nbr erasable tetrahedrons : "+nbr);
+//		System.out.println("nbr wrong erasable tetrahedrons : "+nbr2/3);
+//	}
 	
 	@Override
 	void saveTestStatSurface(FileWriter fw) throws IOException {

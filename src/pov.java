@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,32 +142,34 @@ public class pov {
 	void n() {
 		currentCorner = n(currentCorner);
 	}
-	
+	/*
 	/**
 	 * face which opposite vertex is v
 	 * V[opppositeFaceFromVertex(v)]=v
 	 * @param v : vertex id
 	 * @return face id
 	 */
+	/*
 	int oppositeFaceFromVertex(int v){
 		if (v>3)
 			return (v-3)*4;
 		else return v;
-	}
-	
+	}*/
+	/*
 	/**
 	 * opposite operation of v
 	 * v(cornerFromVertex(v))=v
 	 * @param v : vertex id
 	 * @return corner id
 	 */
+	/*
 	int cornerFromVertex(int v){
 		if (v>3)return (v-3)*12+4;
 		if (v==0)return 4;
 		if (v==1)return 2;
 		if (v==2)return 1;
 		return 0;
-	}
+	}*/
 	
 	/**
 	 	face index of the corner
@@ -328,27 +331,27 @@ public class pov {
 		currentCorner = s(currentCorner);
 	}
 
-	/**
-	 * return the swing of a corner on the boundary
-	 * @param c : outside corner id
-	 * @return swing of c
-	 */
-	private int borderNeighbour(int c) {
-		int v = v(n(c));
-		int q = s(s(c));
-		while (borderCorner(q)) {
-			int temp;
-			try {
-				temp = n(o(q));
-			} catch (BorderCornerException e) {
-				temp = e.o;
-			}
-			if (!(v(n(temp)) == v || v(n(n(temp))) == v))
-				temp = s(temp);
-			q = temp;
-		}
-		return q;
-	}
+//	/**
+//	 * return the swing of a corner on the boundary
+//	 * @param c : outside corner id
+//	 * @return swing of c
+//	 */
+//	private int borderNeighbour(int c) {
+//		int v = v(n(c));
+//		int q = s(s(c));
+//		while (borderCorner(q)) {
+//			int temp;
+//			try {
+//				temp = n(o(q));
+//			} catch (BorderCornerException e) {
+//				temp = e.o;
+//			}
+//			if (!(v(n(temp)) == v || v(n(n(temp))) == v))
+//				temp = s(temp);
+//			q = temp;
+//		}
+//		return q;
+//	}
 
 	/**
 	 * return the swing of c that has the vertex v in his corresponding face
@@ -575,22 +578,59 @@ public class pov {
 	 * clean the array (V and O) from the cancelled tetrahedra 
 	 * O(nf) operation 
 	 */
+//	void cleanSurface() {
+//		System.out.print("cleaning...");
+//		TreeSet<Integer> toClean = new TreeSet<Integer>();
+//		for (int i = 0; i < 4 * nt; i++)
+//			if (V[i] == -1)
+//				toClean.add(i);
+//		System.out.println(1);
+//		int n = toClean.size() / 4;
+//		for (int i = 4 * nt; i < nf; i++)
+//			if (V[O[i]] == -1)
+//				toClean.add(i);
+//		System.out.println(2);
+//		for (int i = 0; i < nf; i++) {
+//			int k = toClean.headSet(i).size();
+//			V[i - k] = V[i];
+//			O[i - k] = O[i] - toClean.headSet(O[i]).size();
+//		}
+//		System.out.println(3);
+//		nt -= n;
+//		nf -= toClean.size();
+//		System.err.println("done");
+//	}
 	void cleanSurface() {
-		TreeSet<Integer> toClean = new TreeSet<Integer>();
+		System.out.print("cleaning...");
+		int k=0;
 		for (int i = 0; i < 4 * nt; i++)
 			if (V[i] == -1)
-				toClean.add(i);
-		int n = toClean.size() / 4;
-		for (int i = 4 * nt; i < nf; i++)
-			if (V[O[i]] == -1)
-				toClean.add(i);
-		for (int i = 0; i < nf; i++) {
-			int k = toClean.headSet(i).size();
-			V[i - k] = V[i];
-			O[i - k] = O[i] - toClean.headSet(O[i]).size();
+				k++;
+		int n = k / 4;
+		k=0;
+		for (int i=0;i<4*nt;i++){
+			if (V[i]==-1)k++;
+			else {
+				V[i - k] = V[i];
+			}
 		}
-		nt -= n;
-		nf -= toClean.size();
+		nt -= (n+1);
+		for (int i=0;i<4*nt;i++){
+			if (V[i]==-1){
+				throw new Error("\ncleaning fail "+i);
+			}
+		}
+		createOtable();
+		orientMesh();
+		System.out.println("done");
+	}
+	
+	int rank(int k, Integer[] a,int low, int high){
+		if (high-low<=1) return low;
+		if (k>a[(high+low)/2]) return rank(k,a,(high+low)/2,high);
+		if (k<a[(high+low)/2]) return rank(k,a,low,(high+low)/2);
+		if (k==a[(high+low)/2]) return (high+low)/2;
+		return 0;
 	}
 	/**
 	 * number of common vertices between two tetrahedra
@@ -823,7 +863,7 @@ public class pov {
 			}
 		}
 		nt = nbt;
-		reorderTetrahedrons();
+//		reorderTetrahedrons();
 		createOtable();
 		orientMesh();
 	}
@@ -878,9 +918,14 @@ public class pov {
 			pov.O[k] = Integer.valueOf(VO[1]);
 		}
 		pov.pv = 0;
-		pov.reorderTetrahedrons();
+//		pov.reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
+		ArrayList<Integer> l = pov.testIsManifold();
+		while (!l.isEmpty()){
+			pov.toManifold(l);
+			l = pov.testIsManifold();
+		}
 		if (pov.checkMesh())
 			pov.savepov(fn);
 		return pov;
@@ -946,12 +991,60 @@ public class pov {
 			pov.V[k] = Integer.valueOf(ss[i].split(",")[0]);
 		}
 		pov.pv = 0;
-		pov.reorderTetrahedrons();
+//		pov.reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
-		pov.savepov(fn);
+		ArrayList<Integer> l = pov.testIsManifold();
+		while (!l.isEmpty()){
+			pov.toManifold(l);
+			l = pov.testIsManifold();
+		}
+		if (pov.checkMesh())
+			pov.savepov(fn);
 		System.out.println("done");
 		return pov;
+	}
+	
+	void cancelDoubleTets(){
+		System.out.print("creating O table...");
+		class Quad {
+			int[] t=new int[4];
+
+			Quad(int v0, int v1, int v2,int v3) {
+				if (v0==v1||v0==v2||v1==v2||v0==v3||v1==v3||v2==v3) new Error("degenerated face");
+				t[0]=v0;t[1]=v1;t[2]=v2;t[3]=v3;
+				Arrays.sort(t);
+			}
+
+			public boolean equals(Object obj) {
+				if (obj instanceof Quad) {
+					Quad o = (Quad) obj;
+					for (int i=0;i<4;i++)
+						if (o.t[i]!=t[i]) return false;
+					return true;
+				}
+				return false;
+			}
+
+			public int hashCode() {
+				int k=0;
+				for (int i=0;i<4;i++)
+					k+=t[i]*i*i*i;
+				return k;
+			}
+		}
+
+		HashMap<Quad, Integer> htable = new HashMap<Quad, Integer>();
+		for (int i = 0; i < nt; i++) {
+			Quad tr = new Quad(V[4 * i], V[4 * i+1], V[4 * i + 2], V[4 * i + 3]);
+			Integer g = htable.get(tr);
+			if (g != null && g >= 0) {
+				removeTetrahedron(i);
+			} else {
+				htable.put(tr, i);
+			}
+		}
+		cleanSurface();
 	}
 	
 	/**
@@ -959,6 +1052,7 @@ public class pov {
 	 *  linear time algorithm
 	 */
 	void createOtable() {
+		System.out.print("creating O table...");
 		class Triplet {
 			int x, y, z;
 
@@ -992,7 +1086,7 @@ public class pov {
 					O[f] = g;
 					O[g] = f;
 //					int l;
-//					if ((l= CommonVertices(tetraFromFace(f),tetraFromFace(g)))!=3);//System.err.println(f+" "+l);
+//					if ((l= CommonVertices(tetraFromFace(f),tetraFromFace(g)))!=3)System.err.println(f+" "+l);
 					htable.remove(tr);
 				} else {
 					htable.put(tr, f);
@@ -1002,14 +1096,13 @@ public class pov {
 		int k = 4 * nt;
 		for (Entry<Triplet, Integer> t : htable.entrySet()) {
 			int i = t.getValue();
-			//if (O[i]!=0) System.err.println("ff");
 			O[i] = k;
 			O[k] = i;
 			V[k] = -1;
 			k++;
 		}
-		checkMesh();
 		nf = k;
+		System.out.println("done");
 	}
 	/**
 	 * load a .ele file (need a .node file with the same name)
@@ -1047,10 +1140,16 @@ public class pov {
 			}
 		}
 		pov.pv = 0;
-		pov.reorderTetrahedrons();
+//		pov.reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
-		pov.savepov(fn);
+		ArrayList<Integer> l = pov.testIsManifold();
+		while (!l.isEmpty()){
+			pov.toManifold(l);
+			l = pov.testIsManifold();
+		}
+		if (pov.checkMesh())
+			pov.savepov(fn);
 		System.out.println("done");
 		return pov;
 	}
@@ -1070,13 +1169,14 @@ public class pov {
 		pov.maxnt=pov.nt;
 		pov.maxnv=pov.nv;
 		pov.maxnf=6*pov.nt+50;
-		pov.nf=pov.maxnf-50;
+		pov.nf=4*pov.nv;
 		pov.G = new pt[pov.maxnv]; 
 		pov.declare();
 		pov.V = new int[pov.maxnf];
 		pov.O = new int[pov.maxnf];
 		int currt = 0;
 		int currv = 0;
+		System.out.print("loading...");
 		for (int k = 4; k < ss.length; k++) {
 			String[] sss = (ss[k]).split(" +");
 			if (sss[0].equals("v")) {
@@ -1112,11 +1212,19 @@ public class pov {
 				currt++;
 			}
 		}
+		System.out.println("done");
 		pov.pv = 0;
-		pov.reorderTetrahedrons();
+		pov.cancelDoubleTets();
+//		pov.reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
-		pov.savepov(fn);
+		ArrayList<Integer> l = pov.testIsManifold();
+		while (!l.isEmpty()){
+			pov.toManifold(l);
+			l = pov.testIsManifold();
+		}
+		if (pov.checkMesh())
+			pov.savepov(fn);
 		System.out.println("done");
 		return pov;
 	}
@@ -1160,29 +1268,35 @@ public class pov {
 	 */
 	boolean checkMesh() {
 		int nbr=0;
-		nbr = checkPVarray(nbr);
-		if (nbr!=0)
-			System.out.println("vertex errs : "+nbr);
+//		nbr = checkPVarray(nbr);
+//		if (nbr!=0)
+//			System.out.println("vertex errs : "+nbr);
 		nbr = checkOtable(nbr);
 		if (nbr!=0)
 			System.out.println("errs : "+nbr);
-		ArrayList<Integer> l = testIsManifold();
+		boolean b = testIsManifold().isEmpty();
+		System.out.println("is Manifold : "+b);
+		return nbr==0&&b;
+	}
+	
+	/**
+	 * erase unmanifold tetrahedra
+	 */
+	private void toManifold(ArrayList<Integer> l) {
 		System.out.println("is Manifold : "+l.isEmpty());
 		for (Integer t:l){
 			removeTetrahedron(t);
 		}
 		cleanSurface();
-		System.out.println("is Manifold : "+testIsManifold().isEmpty());
-		return nbr==0;
 	}
 
-	private int checkPVarray(int nbr) {
+	/*private int checkPVarray(int nbr) {
 		for (int v=0;v<nv;v++){
 			 if(V[oppositeFaceFromVertex(v)]!=v)nbr++;
 			 if(v(cornerFromVertex(v))!=v)nbr++;
 		}
 		return nbr;
-	}
+	}*/
 
 	private int checkOtable(int nbr) {
 		int k;
@@ -1191,30 +1305,34 @@ public class pov {
 				k = CommonVertices(i, tetraFromFace(O[4 * i]));
 				if (k != 3){
 					nbr++;
+					System.out.println("err "+k);
 				}
 			}
 			if (!borderCorner(3*O[4 * i+1])) {
 				k = CommonVertices(i, tetraFromFace(O[4 * i + 1]));
-				if (k != 3)
+				if (k != 3){
 					nbr++;
-//				System.out.println("err "+k);
+				System.out.println("err "+k);}
 			}
 			if (!borderCorner(3*O[4 * i+2])) {
 				k = CommonVertices(i, tetraFromFace(O[4 * i + 2]));
-				if (k != 3)
+				if (k != 3){
 					nbr++;
-//				System.out.println("err "+k);
+				System.out.println("err "+k);}
 			}
 			if (!borderCorner(3*O[4 * i+3])) {
 				k = CommonVertices(i, tetraFromFace(O[4 * i + 3]));
-				if (k != 3)
+				if (k != 3){
 					nbr++;
-//				System.out.println("err "+k);
+				System.out.println("err "+k);}
 			}
 		}
 		return nbr;
 	}
-	
+	/**
+	 * test is the mesh vertices are manifold
+	 * @return a list of tetrahedra of which one vertex is not manifold
+	 */
 	private ArrayList<Integer> testIsManifold(){
 		int[] rel= new int[]{4,2,1,0};
 		boolean[] vertex = new boolean[nv];
@@ -1257,11 +1375,12 @@ public class pov {
 		System.out.println(l.size());
 		return l;
 	}
-	
+	/*
 	/**
 	 * reorder tets and vertices such that the nv-3 first tets introduce one new vertex, their fist one
 	 * needs Otable to be recompute
 	 */
+	/*
 	void reorderTetrahedrons(){
 		pt ver[] = new pt[nv];
 		int faces[] = new int[maxnf];
@@ -1313,7 +1432,7 @@ public class pov {
 		}
 		G=ver;
 		V=faces;
-	}
+	}*/
 	/**
 	 * remove a tetrahedron from the mesh
 	 * needs a cleaning(cleanSurface) to avoid negative array indexes

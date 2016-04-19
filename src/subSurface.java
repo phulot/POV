@@ -202,6 +202,19 @@ class subSurface {
 				return true;
 		return false;
 	}
+	
+	/**
+	 * compute the number of marked neighbors of an edge
+	 * @param c : corner id of the edge
+	 * @return number of marked neighbors 
+	 */
+	int EdgeNbrMarkedNeighbors(int c){
+		int k=0;
+		for (Integer t : pov.edgeNeighbors(c))
+			if (marked[4*t])
+				k++;
+		return k;
+	}
 	/**
 	 * return if an edge is interior i.e. if all his neighbors are marked
 	 * @param c : corner id
@@ -314,27 +327,34 @@ class subSurface {
 	 * display non marked points and their neighbors
 	 */
 	void displayirregularPoints() {
-		for (int v = 0;v < pov.nv; v++) {
-			if (vertexmarked[v] == 0) {
-				int c = pov.cornerFromVertex(v);
-				for (Integer i : pov.vertexNeighbors(c)) {
-					if (i < pov.nt&&i>=0) {
-						showv[pov.V[4 * i]] = true;
-						showv[pov.V[4 * i + 1]] = true;
-						showv[pov.V[4 * i + 2]] = true;
-						showv[pov.V[4 * i + 3]] = true;
-						for (Integer t : pov.vertexNeighbors(12 * i))
-							if (t!=-1) show[t] = true;
-						for (Integer t : pov.vertexNeighbors(12 * i + 1))
-							if (t!=-1) show[t] = true;
-						for (Integer t : pov.vertexNeighbors(12 * i + 2))
-							if (t!=-1) show[t] = true;
-						for (Integer t : pov.vertexNeighbors(12 * i + 3))
-							if (t!=-1) show[t] = true;
+		int[] rel= new int[]{4,2,1,0};
+		for (int v = 0; v < pov.nt; v++) {
+			for (int j = 0; j < 4; j++) {
+				if (vertexmarked[v] == 0) {
+					int c = 4 * v + rel[j];
+					for (Integer i : pov.vertexNeighbors(c)) {
+						if (i < pov.nt && i >= 0) {
+							showv[pov.V[4 * i]] = true;
+							showv[pov.V[4 * i + 1]] = true;
+							showv[pov.V[4 * i + 2]] = true;
+							showv[pov.V[4 * i + 3]] = true;
+							for (Integer t : pov.vertexNeighbors(12 * i))
+								if (t != -1)
+									show[t] = true;
+							for (Integer t : pov.vertexNeighbors(12 * i + 1))
+								if (t != -1)
+									show[t] = true;
+							for (Integer t : pov.vertexNeighbors(12 * i + 2))
+								if (t != -1)
+									show[t] = true;
+							for (Integer t : pov.vertexNeighbors(12 * i + 3))
+								if (t != -1)
+									show[t] = true;
+						}
 					}
+					// F=new pt(G[V[f]]);
+					return;
 				}
-				// F=new pt(G[V[f]]);
-				return;
 			}
 		}
 	}
@@ -500,14 +520,15 @@ class subSurface {
 	}
 	/**
 	 * check if the surface is manifold
+	 * can be optimized with a way to go from vertex to a corner
 	 * @return
 	 */
 	boolean checkSurface() {
 		boolean b = true;
 		int vertexfail = 0;
 		int edgefail = 0;
-		for (int v = 0; v < pov.nt; v++) {
-			if (!checkContinuity(pov.vertexNeighbors(pov.cornerFromVertex(v)))) {
+		for (int v = 0; v < 12*pov.nt; v++) {
+			if (!checkContinuity(pov.vertexNeighbors(v))) {
 				b = false;
 				vertexmarked[v] = -1;
 				vertexfail++;
@@ -536,9 +557,10 @@ class subSurface {
 	 */
 	private HashSet<Integer> checkVertices() {//return the set of internal vertices
 		HashSet<Integer> ll = new HashSet<Integer>();
+		int[] rel= new int[]{4,2,1,0};
 		for (int v = 0; v < pov.nv; v++) {
 			for (int j=0;j<4;j++){
-				TreeSet<Integer> l = pov.vertexNeighbors(pov.cornerFromVertex(v));
+				TreeSet<Integer> l = pov.vertexNeighbors(4*pov.nt+rel[j]);
 				boolean b = true;
 				for (Integer k : l) {
 					if (k==-1) b=false;
