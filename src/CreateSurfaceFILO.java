@@ -11,7 +11,7 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		super(sur, c);
 		it=iter;
 	}
-
+/*
 	int isAddable(int t) {
 		if (p.borderCorner(12 * t))
 			return 0;
@@ -20,22 +20,22 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		int k = 0;
 		int f1 = 0;
 		int f2 = 0;
-		if (s.marked[p.O[4 * t]]) {
+		if (s.marked[p.O(4 * t)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t;
 		}
-		if (s.marked[p.O[4 * t + 1]]) {
+		if (s.marked[p.O(4 * t + 1)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 1;
 		}
-		if (s.marked[p.O[4 * t + 2]]) {
+		if (s.marked[p.O(4 * t + 2)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 2;
 		}
-		if (s.marked[p.O[4 * t + 3]]) {
+		if (s.marked[p.O(4 * t + 3)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 3;
@@ -68,18 +68,18 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 			return 1;
 		}
 		if (k == 1) {
-			if (s.marked[p.O[4 * t]] && s.vertexmarked[p.V[4 * t]] == 0)
+			if (s.marked[p.O(4 * t)] && s.vertexmarked[p.V[4 * t]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 1]] && s.vertexmarked[p.V[4 * t + 1]] == 0)
+			if (s.marked[p.O(4 * t + 1)] && s.vertexmarked[p.V[4 * t + 1]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 2]] && s.vertexmarked[p.V[4 * t + 2]] == 0)
+			if (s.marked[p.O(4 * t + 2)] && s.vertexmarked[p.V[4 * t + 2]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 3]] && s.vertexmarked[p.V[4 * t + 3]] == 0)
+			if (s.marked[p.O(4 * t + 3)] && s.vertexmarked[p.V[4 * t + 3]] == 0)
 				return 1;
 			return 0;
 		}
 		return 0;
-	}
+	}*/
 
 	@Override
 	public void Create() {

@@ -59,7 +59,7 @@ public class pov {
 	/**
 	 *  max number of faces (including external)
 	 */
-	int maxnf = maxnt * 5;
+	int maxnf = maxnt * 4;
 	/**
 	 * tetrahedron number
 	 */
@@ -107,7 +107,6 @@ public class pov {
 			ver.add(1.f / 3f, v1);
 			vec v2 = vec.V(id, G[v(n(n(c)))]);
 			cor.add(vec.V(1.f / 3f, vec.V(v1, v2)));
-
 			display.fill(display.blue, 300);
 			display.noStroke();
 			display.show(G[v(c)], ver, cor);
@@ -254,7 +253,7 @@ public class pov {
 		// print(c+" ");
 		if (borderCorner(c)) {
 			int f = faceFromCorner(c);
-			int o = O[f];
+			int o = f-4*nt;
 			if (c % 3 == 0)
 				return 3 * o;
 			if (c % 3 == 1)
@@ -263,14 +262,14 @@ public class pov {
 		} else {
 			int v = v(c);
 			int f = faceFromCorner(c);
-			int o = 3 * O[f];
-			if (borderCorner(o)) {
+			if (f==O[f]) {
 				if (c % 3 == 0)
-					throw new BorderCornerException(o);
+					throw new BorderCornerException(3*f+4*nt);
 				if (c % 3 == 1)
-					throw new BorderCornerException(o+2);
-				throw new BorderCornerException(o+1);
+					throw new BorderCornerException(3*f+4*nt+2);
+				throw new BorderCornerException(3*f+4*nt+1);
 			}
+			int o = 3 * O[f];
 			if (v == v(o))
 				return o;
 			o++;
@@ -291,6 +290,13 @@ public class pov {
 		}
 	}
 
+	int O(int f) throws BorderFaceException{
+		if (borderFace(f))
+			return f-4*nt;
+		if (O[f]==f)
+			throw new BorderFaceException(f+4*nt);
+		return O[f];
+	}
 	/**
 	 *  swing operation
 	 * @param c : corner id
@@ -372,6 +378,7 @@ public class pov {
 	 * @return corner id
 	 */
 	int cornerOftetra(int f1, int f2) {
+		if (borderFace(f1)||borderFace(f2)) throw new Error("border Faces");
 		int f = 4 * tetraFromFace(f1);
 		if (f == f1 || f == f2)
 			f++;
@@ -878,7 +885,7 @@ public class pov {
 		System.out.println("nt=" + pov.nt);
 		pov.maxnt=pov.nt;
 		pov.maxnv=pov.nv;
-		pov.maxnf=6*pov.nt;
+		pov.maxnf=4*pov.nt;
 		pov.G = new pt[pov.maxnv]; 
 		pov.declare();
 		pov.V = new int[pov.maxnf];
@@ -927,14 +934,7 @@ public class pov {
 		int f2 = f1 + 1;
 		if (f2 % 4 == 0)
 			f2 = f2 - 4;
-		int v = V[f1];
-		int o = O[f1];
-		O[O[f1]] = f2;
-		O[O[f2]] = f1;
-		V[f1] = V[f2];
-		O[f1] = O[f2];
-		V[f2] = v;
-		O[f2] = o;
+		invertFaces(f1, f2);
 	}
 
 	/**
@@ -1079,10 +1079,7 @@ public class pov {
 		int k = 4 * nt;
 		for (Entry<Triplet, Integer> t : htable.entrySet()) {
 			int i = t.getValue();
-			O[i] = k;
-			O[k] = i;
-			V[k] = -1;
-			k++;
+			O[i] = i;
 		}
 		nf = k;
 		System.out.println("done");
@@ -1286,30 +1283,25 @@ public class pov {
 	private int checkOtable(int nbr) {
 		int k;
 		for (int i = 0; i < nt; i++) {
-			if (!borderCorner(3*O[4 * i])) {
-				k = CommonVertices(i, tetraFromFace(O[4 * i]));
+			try {
+				k = CommonVertices(i, tetraFromFace(O(4 * i)));
 				if (k != 3){
 					nbr++;
 					System.out.println("err "+k);
 				}
-			}
-			if (!borderCorner(3*O[4 * i+1])) {
-				k = CommonVertices(i, tetraFromFace(O[4 * i + 1]));
+				k = CommonVertices(i, tetraFromFace(O(4 * i + 1)));
 				if (k != 3){
 					nbr++;
-				System.out.println("err "+k);}
-			}
-			if (!borderCorner(3*O[4 * i+2])) {
-				k = CommonVertices(i, tetraFromFace(O[4 * i + 2]));
+					System.out.println("err "+k);}
+				k = CommonVertices(i, tetraFromFace(O(4 * i + 2)));
 				if (k != 3){
 					nbr++;
-				System.out.println("err "+k);}
-			}
-			if (!borderCorner(3*O[4 * i+3])) {
-				k = CommonVertices(i, tetraFromFace(O[4 * i + 3]));
+					System.out.println("err "+k);}
+				k = CommonVertices(i, tetraFromFace(O(4 * i + 3)));
 				if (k != 3){
 					nbr++;
-				System.out.println("err "+k);}
+					System.out.println("err "+k);}
+			} catch (BorderFaceException e) {
 			}
 		}
 		return nbr;
@@ -1423,18 +1415,18 @@ public class pov {
 	 */
 	void removeTetrahedron(int t){
 		for (int i=0;i<4;i++){
-			V[4*t+i]=-1;
+//			V[4*t+i]=-1;
 			invertFaces(4*t+i, 4*(nt-1)+i);
 		}
-		for (int i=0;i<4;i++){
-			if (borderFace(O[4*(nt-1)+i])){
-				invertFaces(O[4*(nt-1)+i], nf-1);
-				nf--;
-				invertFaces(4*(nt-1)+i, nf-1);
-				nf--;
-			}
-		}
-		nt--;
+//		for (int i=0;i<4;i++){
+//			if (borderFace(O(4*(nt-1)+i))){
+//				invertFaces(O(4*(nt-1)+i), nf-1);
+//				nf--;
+//				invertFaces(4*(nt-1)+i, nf-1);
+//				nf--;
+//			}
+//		}
+//		nt--;
 	}
 	/**
 	 * invert two faces (to rearrange the mesh arrays)
@@ -1442,6 +1434,7 @@ public class pov {
 	 * @param f2 : face id
 	 */
 	private void invertFaces(int f1, int f2){
+		if(borderFace(f1)||borderFace(f2)) throw new Error("Cannot invert border Faces");
 		O[O[f1]]=f2;
 		O[O[f2]]=f1;
 		int temp = O[f1];

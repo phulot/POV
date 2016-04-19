@@ -227,8 +227,11 @@ class subSurface {
 				return false;
 			for (int i =0;i<4;i++){
 				if (pov.V[4*t+i]!=pov.v(c)&&pov.V[4*t+i]!=pov.v(pov.n(c)))
-					if (pov.borderCorner(3*pov.O[4*t+i]))
+					try {
+						pov.O(4*t+i);
+					} catch (BorderFaceException e) {
 						return false;
+					}
 			}
 		}
 		return true;
@@ -425,9 +428,12 @@ class subSurface {
 	 */
 	public void emptySurface(){
 		for (int i=0;i<pov.nf;i++){
-			if (marked[i]&&marked[pov.O[i]]){
-				unmarkFace(i);
-				unmarkFace(pov.O[i]);
+			try {
+				if (marked[i]&&marked[pov.O(i)]){
+					unmarkFace(i);
+					unmarkFace(pov.O(i));
+				}
+			} catch (BorderFaceException e) {
 			}
 		}
 	}
@@ -612,24 +618,30 @@ class subSurface {
 			l = new ArrayList<Integer>();
 			mod = false;
 			for (Integer i : col) {
-				if (i!=-1)
-					if (l0.contains(pov.tetraFromFace(pov.O[4 * i]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 1]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 2]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 3]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
+				if (i!=-1){
+					try {
+						if (l0.contains(pov.tetraFromFace(pov.O(4 * i)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 1)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 2)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 3)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						}
+					} catch (BorderFaceException e) {
+//						if (l0.contains(-1)) l0.add(i);
+//						else if (l0.contains(i)) l0.add(-1);
 					}
+				}
 			}
 			if (!l.isEmpty())
 				col.removeAll(l);
