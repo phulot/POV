@@ -4,6 +4,7 @@ ehthumbs.db
 data/*
 Jcg.jar
 .settings/*
+PICTURES/*
 .classpath
 
 # Folder config file
@@ -56,3 +57,4 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+.project

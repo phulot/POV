@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Set;
 
 class subSurface {
 	/**
@@ -172,7 +173,7 @@ class subSurface {
 	 * unmark all neighbors of current corner vertex
 	 */
 	void unmarkNeighbours() {
-		ArrayList<Integer> l = pov.edgeNeighbors(pov.currentCorner);
+		Set<Integer> l = pov.edgeNeighbors(pov.currentCorner);
 		for (Integer i : l)
 			if (i!=-1)
 				unmarkTetrahedron(i);
@@ -365,6 +366,7 @@ class subSurface {
 	void createOneSurface(int it) {
 		//int c= (int)(Math.random()*(4*nt));
 		s = new CreateSurfaceFILO(this,startingcorner,it);
+		System.out.println("creating the subsurface");
 		s.Create();
 		perf=s.getPerf();
 		//s = new CreateSurfaceFromShell(this, 0);

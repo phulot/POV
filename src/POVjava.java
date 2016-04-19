@@ -38,9 +38,9 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  Meshname = "mito_t";
+	  Meshname = "tahol";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = pov.loadsma("data/"+Meshname,3f,this);  // loads saved model from file
+	  Mesh = pov.loadele("data/"+Meshname,0.1f,this);  // loads saved model from file
 	//  Mesh.loadsma("data/"+Meshname, 5f);
 	//  Mesh.checkMesh();
 	//  Mesh.orientMesh();
@@ -90,12 +90,12 @@ public class POVjava extends PApplet {
 	   if(showWalls) {
 	     stroke(red); strokeWeight(2); noFill(); 
 	     //Mesh.showWall(); strokeWeight(6); 
-	     //Mesh.showWall(); 
+	     Sub.showWallm(); 
 	     fill(yellow,300); strokeWeight(1); noStroke(); 
 	     //Mesh.showWall();
 	     Sub.showMarkedWall(); 
 	     fill(red,300); strokeWeight(1); noStroke(); 
-	     Sub.showShowWall(); 
+//	     Sub.showShowWall(); 
 	   }
 
 	   if(viewpoint) { 
@@ -149,7 +149,7 @@ public class POVjava extends PApplet {
 	  if (key==CODED && keyCode==LEFT){F.x-=5*cos(ry);F.y-=5*sin(ry);}         
 	  if (key==CODED && keyCode==RIGHT){F.x+=5*cos(ry);F.y+=5*sin(ry);}
 	  //if(key=='S') Mesh.createSurface(0);
-	  if(key=='=') ;
+	  if(key=='=') {for (int i=0;i<Mesh.nf;i++) Sub.marked[i]=true;};
 	  if(key=='c') Sub.checkSurface();//center=!center; // snaps focus F to the selected vertex of P (easier to rotate and zoom while keeping it in center)
 	  if(key=='t') tracking=!tracking; // snaps focus F to the selected vertex of P (easier to rotate and zoom while keeping it in center)
 	  if(key=='x' || key=='z' || key=='d') Mesh.setPickedTo(pp); // picks the vertex of P that has closest projeciton to mouse

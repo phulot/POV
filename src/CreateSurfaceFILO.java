@@ -1,6 +1,7 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class CreateSurfaceFILO extends SurfaceCreation {
 	FILOTree surfaceTree;
@@ -59,7 +60,7 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		} // return 0;
 		if (k == 2) {
 			int c = p.cornerOftetra(f1, f2);
-			ArrayList<Integer> l = p.edgeNeighbors(c);
+			Set<Integer> l = p.edgeNeighbors(c);
 			for (Integer tt : l) {
 				if (s.marked[4 * tt])
 					return 0;
@@ -108,11 +109,25 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 				k++;
 		}
 		System.out.println("marked tetrahedron : " +k);
-		k = 0;
-		for (int i=0;i<12*p.nv;i++){
-			k=Math.max(k,s.EdgeNbrMarkedNeighbors(i));
-		}
-		System.out.println("max neighbors number : "+k);
+//		k = 0;
+//		int kk=0;
+//		int n=0;
+//		double[] stat=new double[20];
+//		for (int i = 0; i < 12*p.nt; i++) {
+//			n++;
+//			if (!s.edgeIsInterior(i)) {
+//				int l = s.EdgeNbrMarkedNeighbors(i);
+//				stat[l]+=1d/p.edgeNeighbors(i).size();
+//				k = Math.max(k, l);
+//				kk += l;
+//				if (l >16) {
+//					s.show[i / 12] = true;
+//				}
+//			}
+//		}
+//		System.out.println("max neighbors number : "+k);
+//		System.out.println("average neighbors number : "+kk/(n*1d));
+//		for (int i=0;i<20;i++)System.out.println(stat[i]/2);
 //		for (int i = 0; i < p.nt; i++) {
 //			if (s.isIsolated(i) == 0)
 //				k++;
@@ -130,13 +145,16 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		int kk=0;
 		int n=0;
 		int n2=0;
+		double[] stat=new double[40];
 		for (int i=0;i<p.nv;i++){
+			stat[s.vertexmarked[i]]++;
 			if (s.vertexmarked[i]!=0)n++;
 			if (s.vertexmarked[i]>10)s.showv[i]=true;
 			k=Math.max(k,s.vertexmarked[i]);
 			kk+=s.vertexmarked[i];
 			n2+= s.vertexmarked[i]*s.vertexmarked[i];
 		}
+		for (int i=0;i<40;i++)System.out.println(stat[i]);
 //		for (int i = 0; i < p.nf; i++) {
 //			if (s.marked[i]){
 //				if (s.vertexmarked[p.v(3*i)]>10)
