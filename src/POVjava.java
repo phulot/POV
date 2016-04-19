@@ -38,9 +38,9 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  Meshname = "tahol";
+	  Meshname = "pts4";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = pov.loadele("data/"+Meshname,0.1f,this);  // loads saved model from file
+	  Mesh = pov.loadpov("data/"+Meshname,this);  // loads saved model from file
 	//  Mesh.loadsma("data/"+Meshname, 5f);
 	//  Mesh.checkMesh();
 	//  Mesh.orientMesh();
@@ -195,7 +195,7 @@ public class POVjava extends PApplet {
 	// **** Header, footer, help text on canvas
 	void displayHeader() { // Displays title and authors face on screen
 	    scribeHeader(title,0); scribeHeaderRight(name); 
-	    fill(white); //image(myFace, width-myFace.width/2,25,myFace.width/2,myFace.height/2); 
+	    fill(white); image(myFace, width-myFace.width/4,25,myFace.width/4,myFace.height/4); 
 	    }
 	void displayFooter() { // Displays help text at the bottom
 	    scribeFooter(guide,1); 

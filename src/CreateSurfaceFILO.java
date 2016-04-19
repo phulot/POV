@@ -275,7 +275,12 @@ class DiggingSurfaceTree extends Tree{
 	}
 	static boolean isManifold(Tree t){
 		String ss=t.borderToString();
-		boolean res= ss.equals("E")||ss.equals("A")||ss.equals("B")||ss.equals("C")||(ss.equals("AB")&&(t.s.unmarkedNeighborsNbr(t.cor)>1))||(ss.equals("AC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1))||(ss.equals("BC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1))||(t.s.equals("ABC")&&(t.s.unmarkedNeighborsNbr(t.cor)>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1));
+		boolean res= ss.equals("E");
+		res|=ss.equals("A")||ss.equals("B")||ss.equals("C");
+		res|=(ss.equals("AB")&&(t.s.unmarkedNeighborsNbr(t.cor)>1));
+		res|=(ss.equals("AC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1));
+		res|=(ss.equals("BC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1));
+		res|=(t.s.equals("ABC")&&(t.s.unmarkedNeighborsNbr(t.cor)>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1));
 //		System.out.println(res+" "+ss);
 		return res;
 	}

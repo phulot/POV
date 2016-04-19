@@ -264,10 +264,10 @@ public class pov {
 			int f = faceFromCorner(c);
 			if (f==O[f]) {
 				if (c % 3 == 0)
-					throw new BorderCornerException(3*f+4*nt);
+					throw new BorderCornerException(3*f+12*nt);
 				if (c % 3 == 1)
-					throw new BorderCornerException(3*f+4*nt+2);
-				throw new BorderCornerException(3*f+4*nt+1);
+					throw new BorderCornerException(3*f+12*nt+2);
+				throw new BorderCornerException(3*f+12*nt+1);
 			}
 			int o = 3 * O[f];
 			if (v == v(o))
