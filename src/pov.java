@@ -846,9 +846,9 @@ public class pov {
 		Delaunay_3 del = new Delaunay_3();
 		int N = nbv;
 		pov.nv = nbv;
-		int spacesize = 500;
+		int spacesize = 500000;
 		for (int i = 0; i < N; i++) {
-			Point_3 p = new Point_3((int) (Math.random() * spacesize / 5), (int) (Math.random() * spacesize / 5),
+			Point_3 p = new Point_3((int) (Math.random() * spacesize ), (int) (Math.random() * spacesize ),
 					(int) (Math.random() * spacesize));
 			del.insert(p);
 
@@ -857,9 +857,14 @@ public class pov {
 		ArrayList<TriangulationDSVertex_3<Point_3>> vertex = new ArrayList<TriangulationDSVertex_3<Point_3>>(
 				del.finiteVertices());
 		int k = 0;
+		pov.maxnt = cells.size();
+		pov.maxnf = 4*cells.size();
+		pov.V=new int[4*cells.size()];
+		pov.O=new int[4*cells.size()];
+		
 		for (TriangulationDSVertex_3<Point_3> v : vertex) {
-			pov.G[k] = new pt(Float.valueOf("" + v.getPoint().x), Float.valueOf("" + v.getPoint().y),
-					Float.valueOf("" + v.getPoint().z));
+			pov.G[k] = new pt(Float.valueOf("" + v.getPoint().x)/1000, Float.valueOf("" + v.getPoint().y)/1000,
+					Float.valueOf("" + v.getPoint().z)/1000);
 			k++;
 		}
 		int nbt = 0;
@@ -871,6 +876,7 @@ public class pov {
 			}
 		}
 		pov.nt = nbt;
+		pov.nf = 4*pov.nt;
 //		reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
