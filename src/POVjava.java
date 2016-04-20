@@ -40,12 +40,12 @@ public class POVjava extends PApplet {
 	  //Mesh.declare();
 	  Meshname = "fighter_t";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = pov.loadsma("data/"+Meshname,1f,this);  // loads saved model from file
+//	  Mesh = pov.loadsma("data/"+Meshname,1f,this);  // loads saved model from file
 	//  Mesh.loadsma("data/"+Meshname, 5f);
 	//  Mesh.checkMesh();
 	//  Mesh.orientMesh();
 	//  Mesh.savepov(Meshname);
-	//  Mesh.createRandomMesh(1100,1);
+	  Mesh=pov.createRandomMesh(5000,1,this);
 	  Sub = new subSurface(Mesh);
 	  pt p = pt.P(0,0,0);
 	  for (int i=0;i<Mesh.nv;i++){
