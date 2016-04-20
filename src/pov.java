@@ -839,11 +839,13 @@ public class pov {
 	 * create a random mesh by a delaunay3D and deleting some tetrahedrons 
 	 * @param nbv : number of vertices
 	 * @param prob : probability of keeping each tetrahedron
+	 * @return 
 	 */
-	void createRandomMesh(int nbv, float prob) {
+	static pov createRandomMesh(int nbv, float prob,POVjava dis) {
+		pov pov = new pov(dis);
 		Delaunay_3 del = new Delaunay_3();
 		int N = nbv;
-		nv = nbv;
+		pov.nv = nbv;
 		int spacesize = 500;
 		for (int i = 0; i < N; i++) {
 			Point_3 p = new Point_3((int) (Math.random() * spacesize / 5), (int) (Math.random() * spacesize / 5),
@@ -856,7 +858,7 @@ public class pov {
 				del.finiteVertices());
 		int k = 0;
 		for (TriangulationDSVertex_3<Point_3> v : vertex) {
-			G[k] = new pt(Float.valueOf("" + v.getPoint().x), Float.valueOf("" + v.getPoint().y),
+			pov.G[k] = new pt(Float.valueOf("" + v.getPoint().x), Float.valueOf("" + v.getPoint().y),
 					Float.valueOf("" + v.getPoint().z));
 			k++;
 		}
@@ -864,14 +866,15 @@ public class pov {
 		for (TriangulationDSCell_3<Point_3> t : cells) {
 			if (Math.random() < prob) {
 				for (int i = 0; i < 4; i++)
-					V[4 * nbt + i] = vertex.indexOf(t.vertex(i));
+					pov.V[4 * nbt + i] = vertex.indexOf(t.vertex(i));
 				nbt++;
 			}
 		}
-		nt = nbt;
+		pov.nt = nbt;
 //		reorderTetrahedrons();
-		createOtable();
-		orientMesh();
+		pov.createOtable();
+		pov.orientMesh();
+		return pov;
 	}
 
 	void savepov(String fn) {
