@@ -180,17 +180,29 @@ class subSurface {
 	}
 	/**
 	 * compute the number of unmarked tetradra around c's vertex
+	 * the border count for one
 	 * @param c : corner id
 	 * @return number of unmarked neighbors
 	 */
-	int unmarkedNeighborsNbr(int c) {
+	int unmarkedVertexNeighborsNbr(int c, boolean mar) {
 		int k = 0;
-		for (Integer t : pov.vertexNeighbors(c)) {
-			if (t==-1)k++;
-			else if (!marked[4 * t])
-				k++;
+		if (mar) {
+			for (Integer t : pov.vertexNeighbors(c)) {
+				if (t == -1)
+					k++;
+				else if (!marked[4*t])
+					k++;
+			}
+			return k;
+		} else {
+			for (Integer t : pov.vertexNeighbors(c)) {
+				if (t == -1)
+					k++;
+				else if (!mm[t])
+					k++;
+			}
+			return k;
 		}
-		return k;
 	}
 	/**
 	 * return if an edge is marked (marked[]), tetradra test, not face 
@@ -538,7 +550,7 @@ class subSurface {
 		for (int v = 0; v < 12*pov.nt; v++) {
 			if (!checkContinuity(pov.vertexNeighbors(v))) {
 				b = false;
-				vertexmarked[v] = -1;
+				vertexmarked[pov.v(v)] = -1;
 				vertexfail++;
 			}
 		}

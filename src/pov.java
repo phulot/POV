@@ -30,6 +30,7 @@ public class pov {
 	 * display interface
 	 */
 	POVjava display;
+	private final int[] rel= new int[]{4,2,1,0};
 	private final int[] swing = new int[] { 8, 5, 9, 0, 7, 10, 2, 11, 3, 6, 1, 4 };
 	private final int[] ver = new int[] { 3, 2, 1, 3, 0, 2, 1, 0, 3, 1, 2, 0 };
 	/**
@@ -706,6 +707,14 @@ public class pov {
 		return this;
 	}
 
+	int oppositeFace(int vertex, int tet){
+		if (V[4*tet]==vertex)return 4*tet;
+		if (V[4*tet+1]==vertex)return 4*tet+1;
+		if (V[4*tet+2]==vertex)return 4*tet+2;
+		if (V[4*tet+3]==vertex)return 4*tet+3;
+		throw new Error("vertex not in tetra");
+	}
+	
 	int idOfVertexWithClosestScreenProjectionTo(pt M) { // for picking a vertex
 		// with the mouse
 		display.pp = 0;
@@ -713,6 +722,19 @@ public class pov {
 			if (POVjava.d(M, display.ToScreen(G[i])) <= POVjava.d(M, display.ToScreen(G[display.pp])))
 				display.pp = i;
 		return display.pp;
+	}
+	
+	/**
+	 * to pick a corner
+	 * @param M : point
+	 * @return corner id
+	 */
+	int idOfCornerWithClosestTo(pt M) {
+		int temp=0;
+		for (int i = 1; i < 4*nt; i++)
+			if (POVjava.d(M, G[V[i]]) < POVjava.d(M, G[V[temp]]))
+				temp = i;
+		return 12*(temp/4)+rel[temp%4];
 	}
 
 	pt closestProjectionOf(pt M) { // for picking inserting O. Returns
@@ -853,11 +875,9 @@ public class pov {
 	}
 
 	void savepov(String fn) {
-		// cleanSurface();
-		String[] inppov = new String[nv + nf + 3];
+		String[] inppov = new String[nv + nf + 2];
 		int s = 0;
 		inppov[s++] = "" + (nv);
-		inppov[s++] = "" + (nf);
 		inppov[s++] = "" + (nt);
 		for (int i = 0; i < nv; i++) {
 			inppov[s++] = (G[i].x) + "," + (G[i].y) + "," + (G[i].z);
@@ -866,42 +886,51 @@ public class pov {
 			inppov[s++] = (V[k]) + "," + (O[k]);
 		}
 		saveStrings(fn, inppov);
+		System.out.println("saved");
 	};
+	
+	static pov loadpov(String fn, POVjava p){
+		return loadpov(fn, 1f, p);
+	}
 
 	/**
-	 * to load a orientated mesh
-	 * @param fn
+	 * to load a pov mesh
+	 * @param fn : path
+	 * @param mult : multiplication factor
+	 * @param p : display
+	 * @return the pov mesh
 	 */
-	static pov loadpov(String fn, POVjava p) {
-		pov pov = new pov(p);
-		System.out.println("loading: " + fn);
-		String[] ss = pov.loadStrings(fn+".pov");
-		int s = 0;
-		pov.nv = Integer.valueOf(ss[s++]);
-		System.out.println("nv=" + pov.nv);
-		pov.nf = Integer.valueOf(ss[s++]);
-		System.out.println("nf=" + pov.nf);
-		pov.nt = Integer.valueOf(ss[s++]);
-		System.out.println("nt=" + pov.nt);
-		pov.maxnt=pov.nt;
-		pov.maxnv=pov.nv;
-		pov.maxnf=4*pov.nt;
-		pov.G = new pt[pov.maxnv]; 
-		pov.declare();
-		pov.V = new int[pov.maxnf];
-		pov.O = new int[pov.maxnf];
-		for (int k = 0; k < pov.nv; k++) {
-			int i = k + s;
-			String[] xy = ss[i].split(",");
-			pov.G[k].setTo(Float.valueOf(xy[0]), Float.valueOf(xy[1]), Float.valueOf(xy[2]));
-		}
-		for (int k = 0; k < pov.nf; k++) {
-			int i = k + s + pov.nv;
-			String[] VO = ss[i].split(",");
-			pov.V[k] = Integer.valueOf(VO[0]);
-			pov.O[k] = Integer.valueOf(VO[1]);
-		}
-		pov.pv = 0;
+	static pov loadpov(String fn, float mult, POVjava p) {
+		try {
+			pov pov = new pov(p);
+			System.out.println("loading: " + fn);
+			String[] ss = pov.loadStrings(fn+".pov");
+			int s = 0;
+			pov.nv = Integer.valueOf(ss[s++]);
+			System.out.println("nv=" + pov.nv);
+			pov.nt = Integer.valueOf(ss[s++]);
+			System.out.println("nt=" + pov.nt);
+			pov.maxnt=pov.nt;
+			pov.nf=4*pov.nt;
+			pov.maxnv=pov.nv;
+			pov.maxnf=4*pov.nt+100;
+			pov.G = new pt[pov.maxnv]; 
+			pov.declare();
+			pov.V = new int[pov.maxnf];
+			pov.O = new int[pov.maxnf];
+			for (int k = 0; k < pov.nv; k++) {
+				int i = k + s;
+				String[] xy = ss[i].split(",");
+				pov.G[k].setTo(mult*Float.valueOf(xy[0]), mult*Float.valueOf(xy[1]), mult*Float.valueOf(xy[2]));
+			}
+			for (int k = 0; k < pov.nf; k++) {
+				int i = k + s + pov.nv;
+				String[] VO = ss[i].split(",");
+				pov.V[k] = Integer.valueOf(VO[0]);
+				pov.O[k] = Integer.valueOf(VO[1]);
+				if (pov.O[k]>=pov.nf) pov.O[k]=k;
+			}
+			pov.pv = 0;
 //		pov.reorderTetrahedrons();
 //		pov.createOtable();
 //		pov.orientMesh();
@@ -910,10 +939,12 @@ public class pov {
 //			pov.toManifold(l);
 //			l = pov.testIsManifold();
 //		}
-//		if (pov.checkMesh())
-//			pov.savepov(fn);
-		System.out.println("done");
-		return pov;
+			pov.checkMesh();
+			System.out.println("done");
+			return pov;
+		} catch (Exception e){
+			return loadoldpov(fn,mult,p);
+		}
 	};
 
 	/**
@@ -972,12 +1003,12 @@ public class pov {
 //		pov.reorderTetrahedrons();
 		pov.createOtable();
 		pov.orientMesh();
-		Set<Integer> l = pov.testIsManifold();
-		while (!l.isEmpty()){
-			pov.toManifold(l);
-			l = pov.testIsManifold();
-		}
-		if (pov.checkMesh())
+//		Set<Integer> l = pov.testIsManifold();
+//		while (!l.isEmpty()){
+//			pov.toManifold(l);
+//			l = pov.testIsManifold();
+//		}
+//		if (pov.checkMesh())
 			pov.savepov(fn);
 		System.out.println("done");
 		return pov;
@@ -1165,29 +1196,13 @@ public class pov {
 				currv++;
 			}
 			if (sss[0].equals("c")) {
-				int i = Integer.valueOf(sss[1]) - 1;
-				if (i > 0)
-					pov.V[4 * currt] = i - 1;
-				else {
-					pov.V[4 * currt] = currv + i + 1;
-				}
-				i = Integer.valueOf(sss[2]) - 1;
-				if (i > 0)
-					pov.V[4 * currt + 1] = i - 1;
-				else {
-					pov.V[4 * currt + 1] = currv + i + 1;
-				}
-				i = Integer.valueOf(sss[3]) - 1;
-				if (i > 0)
-					pov.V[4 * currt + 2] = i - 1;
-				else {
-					pov.V[4 * currt + 2] = currv + i + 1;
-				}
-				i = Integer.valueOf(sss[4]) - 1;
-				if (i > 0)
-					pov.V[4 * currt + 3] = i - 1;
-				else {
-					pov.V[4 * currt + 3] = currv + i + 1;
+				for (int j=0;j<4;j++){
+					int i = Integer.valueOf(sss[j+1]);
+					if (i > 0)
+						pov.V[4 * currt+j] = i-1;
+					else {
+						pov.V[4 * currt+j] = currv + i;
+					}
 				}
 				currt++;
 			}
@@ -1311,7 +1326,6 @@ public class pov {
 	 * @return a list of tetrahedra of which one vertex is not manifold
 	 */
 	private Set<Integer> testIsManifold(){
-		int[] rel= new int[]{4,2,1,0};
 		boolean[] vertex = new boolean[nv];
 		boolean[] tet = new boolean[4*nt];
 		Set<Integer> l = new HashSet<Integer>();
@@ -1327,24 +1341,26 @@ public class pov {
 			if(b)
 			for (int i=0;i<4;i++){
 				if (!tet[4*t+i]){
+					int v= V[4*t+i];
 					for (Integer tt : vertexNeighbors(12*t+rel[i])){
 						if (tt!=-1){
 							int k=0;
-							if (V[4*tt+k]==V[4*t+i])tet[4*tt+k]=true;
+							if (V[4*tt+k]==v)tet[4*tt+k]=true;
 							else{
 								k++;
-								if (V[4*tt+k]==V[4*t+i])tet[4*tt+k]=true;
+								if (V[4*tt+k]==v)tet[4*tt+k]=true;
 								else{
 									k++;
-									if (V[4*tt+k]==V[4*t+i])tet[4*tt+k]=true;
+									if (V[4*tt+k]==v)tet[4*tt+k]=true;
 									else{
 										k++;
-										if (V[4*tt+k]==V[4*t+i])tet[4*tt+k]=true;
+										if (V[4*tt+k]==v)tet[4*tt+k]=true;
 									}
 								}
 							}
 						}
 					}
+					tet[4*t+i]=true;
 					vertex[V[4*t+i]]=true;
 				}
 			}
@@ -1415,18 +1431,8 @@ public class pov {
 	 */
 	void removeTetrahedron(int t){
 		for (int i=0;i<4;i++){
-//			V[4*t+i]=-1;
 			invertFaces(4*t+i, 4*(nt-1)+i);
 		}
-//		for (int i=0;i<4;i++){
-//			if (borderFace(O(4*(nt-1)+i))){
-//				invertFaces(O(4*(nt-1)+i), nf-1);
-//				nf--;
-//				invertFaces(4*(nt-1)+i, nf-1);
-//				nf--;
-//			}
-//		}
-//		nt--;
 	}
 	/**
 	 * invert two faces (to rearrange the mesh arrays)
@@ -1444,4 +1450,52 @@ public class pov {
 		V[f1]=V[f2];
 		V[f2]=temp;
 	}
+
+	static pov loadoldpov(String fn,float mult, POVjava p) {
+		pov pov = new pov(p);
+		System.out.println("loading: " + fn);
+		String[] ss = pov.loadStrings(fn+".pov");
+		int s = 0;
+		pov.nv = Integer.valueOf(ss[s++]);
+		System.out.println("nv=" + pov.nv);
+		pov.nf = Integer.valueOf(ss[s++]);
+		System.out.println("nf=" + pov.nf);
+		pov.nt = Integer.valueOf(ss[s++]);
+		pov.nf=4*pov.nt;
+		System.out.println("nt=" + pov.nt);
+		pov.maxnt=pov.nt;
+		pov.maxnv=pov.nv;
+		pov.maxnf=4*pov.nt;
+		pov.G = new pt[pov.maxnv]; 
+		pov.declare();
+		pov.V = new int[pov.maxnf];
+		pov.O = new int[pov.maxnf];
+		for (int k = 0; k < pov.nv; k++) {
+			int i = k + s;
+			String[] xy = ss[i].split(",");
+			pov.G[k].setTo(Float.valueOf(xy[0]), Float.valueOf(xy[1]), Float.valueOf(xy[2]));
+		}
+		for (int k = 0; k < 4*pov.nt; k++) {
+			int i = k + s + pov.nv;
+			String[] VO = ss[i].split(",");
+			pov.V[k] = Integer.valueOf(VO[0]);
+			pov.O[k] = Integer.valueOf(VO[1]);
+			if (pov.O[k]>=pov.nf) pov.O[k]=k;
+		}
+		pov.pv = 0;
+//		pov.reorderTetrahedrons();
+//		pov.createOtable();
+//		pov.orientMesh();
+//		Set<Integer> l = pov.testIsManifold();
+//		while (!l.isEmpty()){
+//			pov.toManifold(l);
+//			l = pov.testIsManifold();
+//		}
+//		if (pov.checkMesh())
+			pov.savepov(fn);
+		System.out.println("done");
+		return pov;
+	};
 }
+
+

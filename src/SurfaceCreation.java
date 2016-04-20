@@ -93,7 +93,7 @@ public abstract class SurfaceCreation {
 		k=0;
 		ArrayList<Integer> l = new ArrayList<Integer>();
 		for (int c=0;c<12*p.nt;c++){
-			if (s.unmarkedNeighborsNbr(c)==0&&!l.contains(p.v(c)))l.add(c);
+			if (s.unmarkedVertexNeighborsNbr(c,true)==0&&!l.contains(p.v(c)))l.add(c);
 		}
 		fw.write("nbr internal vertices : "+k+" ("+(k / (double) p.nv*100)+"%)"+"\n");
 		//s.createApartementTree(startingCorner,true);
