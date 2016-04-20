@@ -38,9 +38,9 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  Meshname = "tahol";
+	  Meshname = "fighter_t";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = pov.loadele("data/"+Meshname,0.1f,this);  // loads saved model from file
+	  Mesh = pov.loadsma("data/"+Meshname,1f,this);  // loads saved model from file
 	//  Mesh.loadsma("data/"+Meshname, 5f);
 	//  Mesh.checkMesh();
 	//  Mesh.orientMesh();
@@ -90,7 +90,7 @@ public class POVjava extends PApplet {
 	   if(showWalls) {
 	     stroke(red); strokeWeight(2); noFill(); 
 	     //Mesh.showWall(); strokeWeight(6); 
-	     Sub.showWallm(); 
+	     Mesh.showWall(); 
 	     fill(yellow,300); strokeWeight(1); noStroke(); 
 	     //Mesh.showWall();
 	     Sub.showMarkedWall(); 
@@ -134,12 +134,12 @@ public class POVjava extends PApplet {
 	  if(key=='~') filming=!filming;
 	  if(key=='.') showVertices=!showVertices;
 	  if(key=='|') showNormals=!showNormals;
-	  if(key=='G') gouraud=!gouraud;
+	  if(key=='g') {DiggingSurfaceTree dsd = new DiggingSurfaceTree(Mesh.currentCorner, null, true, Sub);while (dsd!=null)dsd=dsd.next();}
 	  if(key=='q') {Sub.s.saveTestStat(iter);}
 	  if(key=='n') Mesh.n();
 	  if(key=='o') Mesh.o();
 	  if(key=='s') Mesh.s();
-	  if(key=='p') println(Mesh.currentCorner);
+	  if(key=='p') Mesh.currentCorner=Mesh.idOfCornerWithClosestTo(F);
 	  if(key=='e') Mesh.edgeContraction();
 	  if(key=='m') Sub.markCorner();
 	  if(key=='M') Sub.markNeighbours();
@@ -195,7 +195,7 @@ public class POVjava extends PApplet {
 	// **** Header, footer, help text on canvas
 	void displayHeader() { // Displays title and authors face on screen
 	    scribeHeader(title,0); scribeHeaderRight(name); 
-	    fill(white); //image(myFace, width-myFace.width/2,25,myFace.width/2,myFace.height/2); 
+	    fill(white); image(myFace, width-myFace.width/4,25,myFace.width/4,myFace.height/4); 
 	    }
 	void displayFooter() { // Displays help text at the bottom
 	    scribeFooter(guide,1); 

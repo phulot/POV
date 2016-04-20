@@ -11,7 +11,7 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		super(sur, c);
 		it=iter;
 	}
-
+/*
 	int isAddable(int t) {
 		if (p.borderCorner(12 * t))
 			return 0;
@@ -20,22 +20,22 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		int k = 0;
 		int f1 = 0;
 		int f2 = 0;
-		if (s.marked[p.O[4 * t]]) {
+		if (s.marked[p.O(4 * t)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t;
 		}
-		if (s.marked[p.O[4 * t + 1]]) {
+		if (s.marked[p.O(4 * t + 1)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 1;
 		}
-		if (s.marked[p.O[4 * t + 2]]) {
+		if (s.marked[p.O(4 * t + 2)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 2;
 		}
-		if (s.marked[p.O[4 * t + 3]]) {
+		if (s.marked[p.O(4 * t + 3)]) {
 			k++;
 			f2 = f1;
 			f1 = 4 * t + 3;
@@ -68,19 +68,53 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 			return 1;
 		}
 		if (k == 1) {
-			if (s.marked[p.O[4 * t]] && s.vertexmarked[p.V[4 * t]] == 0)
+			if (s.marked[p.O(4 * t)] && s.vertexmarked[p.V[4 * t]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 1]] && s.vertexmarked[p.V[4 * t + 1]] == 0)
+			if (s.marked[p.O(4 * t + 1)] && s.vertexmarked[p.V[4 * t + 1]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 2]] && s.vertexmarked[p.V[4 * t + 2]] == 0)
+			if (s.marked[p.O(4 * t + 2)] && s.vertexmarked[p.V[4 * t + 2]] == 0)
 				return 1;
-			if (s.marked[p.O[4 * t + 3]] && s.vertexmarked[p.V[4 * t + 3]] == 0)
+			if (s.marked[p.O(4 * t + 3)] && s.vertexmarked[p.V[4 * t + 3]] == 0)
 				return 1;
 			return 0;
 		}
 		return 0;
-	}
+	}*/
 
+	public DiggingSurfaceTree isException(int c){
+		int f;
+		if (s.EdgeNbrMarkedNeighbors(c)!=0)return null;
+		if (s.vertexIsMarked(c, s.mm) && s.vertexIsMarked(p.n(c), s.mm)) {
+			if (p.vertexNeighbors(c).size() - s.unmarkedVertexNeighborsNbr(c, false) == 1) {
+				for (Integer tet : p.edgeNeighbors(c))
+					try {
+						if (tet!=-1)
+							if (s.mm[p.tetraFromFace(p.O((f=p.oppositeFace(p.v(c), tet))))]){
+								for (Integer t : p.vertexNeighbors(c))
+									if (t!=-1)
+										s.mm[t] = false;
+								return new DiggingSurfaceTree(f*3, null, true, s);
+							}
+					} catch (BorderFaceException e) {
+					}
+			}
+			if (p.vertexNeighbors(p.n(c)).size() - s.unmarkedVertexNeighborsNbr(p.n(c), false) == 1) {
+				for (Integer tet : p.edgeNeighbors(c))
+					try {
+						if (tet!=-1)
+							if (s.mm[p.tetraFromFace(p.O((f=p.oppositeFace(p.v(p.n(c)), tet))))]){
+								for (Integer t : p.vertexNeighbors(p.n(c)))
+									if (t != -1)
+										s.mm[t] = false;
+								return new DiggingSurfaceTree(f*3, null, true, s);
+							}
+					} catch (BorderFaceException e) {
+					}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public void Create() {
 		s.mm=new boolean[p.maxnt];
@@ -89,6 +123,13 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 		nbrleaves=0;
 		int iter = 0;
 		while ((t=t.next())!=null&&iter<it){iter++;}
+		int temp=iter;
+		for (int c=0;c<12*p.nt;c++){
+			t=isException(c);
+			if (t!=null)
+				while ((t=t.next())!=null&&iter<it){iter++;}
+		}
+		System.out.println("added "+(iter-temp));
 		//p.display.F=p.G[p.v(t.cor)];
 		//p.currentCorner=t.cor;
 		for (int i=0;i<p.nt;i++){
@@ -109,25 +150,25 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 				k++;
 		}
 		System.out.println("marked tetrahedron : " +k);
-//		k = 0;
-//		int kk=0;
-//		int n=0;
-//		double[] stat=new double[20];
-//		for (int i = 0; i < 12*p.nt; i++) {
-//			n++;
-//			if (!s.edgeIsInterior(i)) {
-//				int l = s.EdgeNbrMarkedNeighbors(i);
-//				stat[l]+=1d/p.edgeNeighbors(i).size();
-//				k = Math.max(k, l);
-//				kk += l;
-//				if (l >16) {
-//					s.show[i / 12] = true;
-//				}
-//			}
-//		}
-//		System.out.println("max neighbors number : "+k);
-//		System.out.println("average neighbors number : "+kk/(n*1d));
-//		for (int i=0;i<20;i++)System.out.println(stat[i]/2);
+		k = 0;
+		int kk=0;
+		int n=0;
+		double[] stat=new double[20];
+		for (int i = 0; i < 12*p.nt; i++) {
+			n++;
+			if (!s.edgeIsInterior(i)) {
+				int l = s.EdgeNbrMarkedNeighbors(i);
+				stat[l]+=1d/p.edgeNeighbors(i).size();
+				k = Math.max(k, l);
+				kk += l;
+				if (l >16) {
+					s.show[i / 12] = true;
+				}
+			}
+		}
+		System.out.println("max neighbors number : "+k);
+		System.out.println("average neighbors number : "+kk/(n*1d));
+		for (int i=0;i<20;i++)System.out.println(stat[i]/2);
 //		for (int i = 0; i < p.nt; i++) {
 //			if (s.isIsolated(i) == 0)
 //				k++;
@@ -275,7 +316,12 @@ class DiggingSurfaceTree extends Tree{
 	}
 	static boolean isManifold(Tree t){
 		String ss=t.borderToString();
-		boolean res= ss.equals("E")||ss.equals("A")||ss.equals("B")||ss.equals("C")||(ss.equals("AB")&&(t.s.unmarkedNeighborsNbr(t.cor)>1))||(ss.equals("AC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1))||(ss.equals("BC")&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1))||(t.s.equals("ABC")&&(t.s.unmarkedNeighborsNbr(t.cor)>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.p.n(t.cor)))>1)&&(t.s.unmarkedNeighborsNbr(t.p.n(t.cor))>1));
+		boolean res= ss.equals("E");
+		res|=ss.equals("A")||ss.equals("B")||ss.equals("C");
+		res|=(ss.equals("AB")&&(t.s.unmarkedVertexNeighborsNbr(t.cor,false)>1));
+		res|=(ss.equals("AC")&&(t.s.unmarkedVertexNeighborsNbr(t.p.n(t.p.n(t.cor)),false)>1));
+		res|=(ss.equals("BC")&&(t.s.unmarkedVertexNeighborsNbr(t.p.n(t.cor),false)>1));
+		res|=(t.s.equals("ABC")&&(t.s.unmarkedVertexNeighborsNbr(t.cor,false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.p.n(t.p.n(t.cor)),false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.p.n(t.cor),false)>1));
 //		System.out.println(res+" "+ss);
 		return res;
 	}

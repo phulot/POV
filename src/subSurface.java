@@ -180,17 +180,29 @@ class subSurface {
 	}
 	/**
 	 * compute the number of unmarked tetradra around c's vertex
+	 * the border count for one
 	 * @param c : corner id
 	 * @return number of unmarked neighbors
 	 */
-	int unmarkedNeighborsNbr(int c) {
+	int unmarkedVertexNeighborsNbr(int c, boolean mar) {
 		int k = 0;
-		for (Integer t : pov.vertexNeighbors(c)) {
-			if (t==-1)k++;
-			else if (!marked[4 * t])
-				k++;
+		if (mar) {
+			for (Integer t : pov.vertexNeighbors(c)) {
+				if (t == -1)
+					k++;
+				else if (!marked[4*t])
+					k++;
+			}
+			return k;
+		} else {
+			for (Integer t : pov.vertexNeighbors(c)) {
+				if (t == -1)
+					k++;
+				else if (!mm[t])
+					k++;
+			}
+			return k;
 		}
-		return k;
 	}
 	/**
 	 * return if an edge is marked (marked[]), tetradra test, not face 
@@ -227,8 +239,11 @@ class subSurface {
 				return false;
 			for (int i =0;i<4;i++){
 				if (pov.V[4*t+i]!=pov.v(c)&&pov.V[4*t+i]!=pov.v(pov.n(c)))
-					if (pov.borderCorner(3*pov.O[4*t+i]))
+					try {
+						pov.O(4*t+i);
+					} catch (BorderFaceException e) {
 						return false;
+					}
 			}
 		}
 		return true;
@@ -425,9 +440,12 @@ class subSurface {
 	 */
 	public void emptySurface(){
 		for (int i=0;i<pov.nf;i++){
-			if (marked[i]&&marked[pov.O[i]]){
-				unmarkFace(i);
-				unmarkFace(pov.O[i]);
+			try {
+				if (marked[i]&&marked[pov.O(i)]){
+					unmarkFace(i);
+					unmarkFace(pov.O(i));
+				}
+			} catch (BorderFaceException e) {
 			}
 		}
 	}
@@ -532,7 +550,7 @@ class subSurface {
 		for (int v = 0; v < 12*pov.nt; v++) {
 			if (!checkContinuity(pov.vertexNeighbors(v))) {
 				b = false;
-				vertexmarked[v] = -1;
+				vertexmarked[pov.v(v)] = -1;
 				vertexfail++;
 			}
 		}
@@ -612,24 +630,30 @@ class subSurface {
 			l = new ArrayList<Integer>();
 			mod = false;
 			for (Integer i : col) {
-				if (i!=-1)
-					if (l0.contains(pov.tetraFromFace(pov.O[4 * i]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 1]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 2]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
-					} else if (l0.contains(pov.tetraFromFace(pov.O[4 * i + 3]))) {
-						mod = true;
-						l0.add(i);
-						l.add(i);
+				if (i!=-1){
+					try {
+						if (l0.contains(pov.tetraFromFace(pov.O(4 * i)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 1)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 2)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						} else if (l0.contains(pov.tetraFromFace(pov.O(4 * i + 3)))) {
+							mod = true;
+							l0.add(i);
+							l.add(i);
+						}
+					} catch (BorderFaceException e) {
+//						if (l0.contains(-1)) l0.add(i);
+//						else if (l0.contains(i)) l0.add(-1);
 					}
+				}
 			}
 			if (!l.isEmpty())
 				col.removeAll(l);
