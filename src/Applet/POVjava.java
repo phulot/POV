@@ -45,7 +45,7 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  meshName = "brain";
+	  meshName = "spine";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
 	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
 	//  Mesh.loadsma("data/"+meshName, 5f);
@@ -94,7 +94,7 @@ public class POVjava extends PApplet {
 		// PtQ.setToL(P,s,Q); // compute interpolated control polygon
 		if (showVertices) {
 			fill(blue, 100);
-			SubDisplay.drawBalls(1f); // draw semitransluent green balls around the vertices
+			SubDisplay.drawBalls(.25f); // draw semitransluent green balls around the vertices
 			fill(red, 100);
 			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
 		}
@@ -157,7 +157,7 @@ public class POVjava extends PApplet {
 	  if(key=='e') SubDisplay.edgeContraction();
 	  if(key=='m') SubDisplay.markCorner();
 	  if(key=='M') SubDisplay.markNeighbours();
-	  if(key=='p') new SurfacePealing(SubDisplay.getPov()).peal();
+	  if(key=='p') new TetPealing(SubDisplay.getPov()).simplePeal();
 	  if(key=='S') {Sub.createOneSurface(iter);Mesh=Sub.getPov();SubDisplay=new subsurfaceDisplay(this, Sub);}//Mesh.displayirregularPoints();}
 	  if (key==CODED && keyCode==UP) {F.x+=5*cos(rx)*sin(ry); F.y-=5*cos(rx)*cos(ry);F.z+=5*sin(rx);}
 	  if (key==CODED && keyCode==DOWN) {F.x-=5*cos(rx)*sin(ry); F.y+=5*cos(rx)*cos(ry);F.z-=5*sin(rx);}

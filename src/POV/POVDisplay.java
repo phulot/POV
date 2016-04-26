@@ -91,7 +91,7 @@ public class POVDisplay {
 	 */
 	public void showWall() {
 		for (int t = 0; t < pov.nt; t++) {
-			if (pov.V[4 * t] != -1) {
+			if (pov.V[4 * t] != -1&&TetPealing.getTetType(t, pov)!=21) {
 				display.show(pov.G[pov.V[4 * t + 1]], pov.G[pov.V[4 * t + 2]], pov.G[pov.V[4 * t + 3]]);
 				display.show(pov.G[pov.V[4 * t]], pov.G[pov.V[4 * t + 2]], pov.G[pov.V[4 * t + 3]]);
 				display.show(pov.G[pov.V[4 * t]], pov.G[pov.V[4 * t + 1]], pov.G[pov.V[4 * t + 3]]);
@@ -103,20 +103,25 @@ public class POVDisplay {
 	 * display the tetrahedrization, 
 	 */
 	public void showtetTypes() {
+		int k;
 		for (int t = 0; t < pov.nt; t++) {
-			if (SurfacePealing.isEtet(t,pov)){
+			k=TetPealing.getTetType(t, pov);
+			if (k==20){
 				display.fill(display.yellow, 300);display.strokeWeight(1);display.noStroke();
 			}
-			if (SurfacePealing.isYtet(t,pov)){
+			if (k==3){
 				display.fill(display.blue, 300);display.strokeWeight(1);display.noStroke();
 			}
-			if (SurfacePealing.isEetet(t,pov)){
+			if (k==21){
 				display.fill(display.red, 300);display.strokeWeight(1);display.noStroke();
 			}
-			if (SurfacePealing.isFtet(t,pov)){
+			if (k==1){
 				display.fill(display.green, 300);display.strokeWeight(1);display.noStroke();
 			}
-			if (pov.V[4 * t] != -1) {
+			if (k==0){
+				display.fill(display.black, 300);display.strokeWeight(1);display.noStroke();
+			}
+			if (pov.V[4 * t] != -1&&k!=21) {
 				display.show(pov.G[pov.V[4 * t + 1]], pov.G[pov.V[4 * t + 2]], pov.G[pov.V[4 * t + 3]]);
 				display.show(pov.G[pov.V[4 * t]], pov.G[pov.V[4 * t + 2]], pov.G[pov.V[4 * t + 3]]);
 				display.show(pov.G[pov.V[4 * t]], pov.G[pov.V[4 * t + 1]], pov.G[pov.V[4 * t + 3]]);
