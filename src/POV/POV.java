@@ -1,11 +1,15 @@
 package POV;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+
+import cornerDS.faceOperators;
+
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,7 +22,7 @@ import java.util.TreeSet;
  * the array of the opposite vertex of each face (same tetrahedron)
  * and the Array of the opposite face of each face(other tetrahedron) 
  */
-public class POV {
+public class POV implements faceOperators{
 	/**
 	 * display interface
 	 */
@@ -304,7 +308,7 @@ public class POV {
 	 * @param f : face id
 	 * @return true -> outside the mesh
 	 */
-	boolean borderFace(int f) {
+	public boolean borderFace(int f) {
 		return (f >= 4*nt);
 	}
 
@@ -663,15 +667,15 @@ public class POV {
 	}
 
 	public void savepov(String fn) {
-		String[] inppov = new String[nv + nf + 2];
+		String[] inppov = new String[nv + 4*nt + 2];
 		int s = 0;
 		inppov[s++] = "" + (nv);
 		inppov[s++] = "" + (nt);
 		for (int i = 0; i < nv; i++) {
 			inppov[s++] = (G[i].x) + "," + (G[i].y) + "," + (G[i].z);
 		}
-		for (int k = 0; k < nf; k++) {
-			inppov[s++] = (V[k]) + "," + (O[k]);
+		for (int i = 0; i < 4*nt; i++) {
+			inppov[s++] = (V[i]) + "," + (O[i]);
 		}
 		povBuilder.saveStrings(fn, inppov);
 		System.out.println("saved");
@@ -1058,6 +1062,43 @@ public class POV {
 		int e=edges.size();
 		int t=2*nt+extf/2;
 		return r+e+1-v-t;
+	}
+
+	@Override
+	public int maxTetID() {
+		return nt;
+	}
+
+	@Override
+	public pt G(int f) {
+		return G[f];
+	}
+
+	@Override
+	public Integer V(int f) {
+		return V[f];
+	}
+
+	@Override
+	public void save(String fn) {
+		savepov(fn);
+	}
+
+	@Override
+	public Collection<Integer> allTetIDS() {
+		Set<Integer> set = new HashSet<>();
+		for (int i=0;i<nt;i++)set.add(i);
+		return set;
+	}
+
+	@Override
+	public int getnv() {
+		return nv;
+	}
+
+	@Override
+	public void setNv(int nv) {
+		this.nv=nv;
 	}
 	
 }

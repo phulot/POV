@@ -7,6 +7,8 @@ import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import subsurface.*;
 import POV.*;
+import cornerDS.cornerBasedDS;
+import oppositeVertex.OppositeVertexBuilder;
 import subsurface.subsurfaceDisplay;
 
 import processing.core.*;
@@ -32,9 +34,9 @@ public class POVjava extends PApplet {
 	pt Vf=pt.P(0,0,0), Vb=pt.P(0,0,0);
 	public int pp=1; // index of picked vertex
 	subSurface Sub;
-	subsurfaceDisplay SubDisplay;
-	POV Mesh; // tet mesh
-//	POVDisplay meshDisplay;
+//	subsurfaceDisplay SubDisplay;
+	cornerBasedDS Mesh; // tet mesh
+	cornerDS.POVDisplay meshDisplay;
 
 	public void settings() {
 		size(900, 900, "processing.opengl.PGraphics3D");
@@ -45,22 +47,26 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  //Mesh.declare();
-	  meshName = "spine";
+	  meshName = "hinge";
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
+//	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
+	  POV pov = povBuilder.loadpov("data/"+meshName);
+	  Mesh = new cornerBasedDS(OppositeVertexBuilder.loadFromPOV(pov));
+//	  Mesh = new cornerBasedDS(pov);
+//	  Mesh = povBuilder.createRandomMesh(1000, 1);
 	//  Mesh.loadsma("data/"+meshName, 5f);
 	//  Mesh.checkMesh();
 	//  Mesh.orientMesh();
 	//  Mesh.savepov(meshName);
 //	  Mesh=pov.createRandomMesh(5000,1,this);
 //	  meshDisplay = new POVDisplay(this, Mesh); 
-	  Sub = new subSurface(Mesh,meshName);
-	  SubDisplay = new subsurfaceDisplay(this,Sub);
+	  meshDisplay = new cornerDS.POVDisplay(this, Mesh);
+//	  Sub = new subSurface(Mesh,meshName);
+//	  SubDisplay = new subsurfaceDisplay(this,Sub);
 	  pt p = pt.P(0,0,0);
-	  for (int i=0;i<Mesh.nv;i++){
-	    p=pt.A(p,Mesh.G[i]);
+	  for (int i=0;i<Mesh.DS.getnv();i++){
+	    p=pt.A(p,Mesh.DS.G(i));
 	  }  
-	  F = p.div(Mesh.nv);
 	  //Mesh.loadPV("data/pts3"); 
 	  //Mesh.initiManual();
 	  }
@@ -90,23 +96,23 @@ public class POVjava extends PApplet {
 		showShadow(F, 5); // magenta translucent shadow of focus point (after moving it up with 'F'
 
 		computeProjectedVectors(); // computes screen projections I, J, K of basis vectors (see bottom of pv3D): used for dragging in viewer's frame
-		pp = SubDisplay.idOfVertexWithClosestScreenProjectionTo(Mouse()); // id of vertex of P with closest screen projection to mouse (us in keyPressed 'x'...
+//		pp = SubDisplay.idOfVertexWithClosestScreenProjectionTo(Mouse()); // id of vertex of P with closest screen projection to mouse (us in keyPressed 'x'...
 		// PtQ.setToL(P,s,Q); // compute interpolated control polygon
 		if (showVertices) {
 			fill(blue, 100);
-			SubDisplay.drawBalls(.25f); // draw semitransluent green balls around the vertices
-			fill(red, 100);
-			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
+			meshDisplay.drawBalls(.25f); // draw semitransluent green balls around the vertices
+//			fill(red, 100);
+//			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
 		}
-		SubDisplay.drawSelectedCorner();
+		meshDisplay.drawSelectedCorner();
 
 		if (showWalls) {
-			stroke(black);strokeWeight(6);noFill();
+			stroke(black);strokeWeight(3);noFill();
 			// Mesh.showWall(); strokeWeight(6);
-			SubDisplay.showWall();
+//			SubDisplay.showWall();
+			meshDisplay.showWall();
 			fill(yellow, 300);strokeWeight(1);noStroke();
-			SubDisplay.showtetTypes();
-//			 SubDisplay.showMarkedWall();
+//			SubDisplay.showMarkedWall();
 //			SubDisplay.showWallm();
 			fill(red, 300);strokeWeight(1);noStroke();
 			// SubDisplay.showShowWall();
@@ -142,39 +148,41 @@ public class POVjava extends PApplet {
 	  if(key=='+') iter+=step; 
 	  if(key=='-') {step--;System.out.println(step);}
 	  if(key=='/') {step/=2;System.out.println(step);}
-	  if(key=='r') Sub.startingcorner = (int)(Math.random()*(4*Mesh.nt));
+//	  if(key=='r') Sub.startingcorner = (int)(Math.random()*(4*Mesh.nt));
 	  if(key=='?') scribeText=!scribeText;
 	  if(key=='!') snapPicture();
 	  if(key=='~') filming=!filming;
 	  if(key=='.') showVertices=!showVertices;
 	  if(key=='|') showNormals=!showNormals;
-	  if(key=='g') {DiggingSurfaceTree dsd = new DiggingSurfaceTree(SubDisplay.currentCorner, null, Sub);while (dsd!=null)dsd=dsd.next();}
+//	  if(key=='g') {DiggingSurfaceTree dsd = new DiggingSurfaceTree(SubDisplay.currentCorner, null, Sub);while (dsd!=null)dsd=dsd.next();}
 	  if(key=='q') {Sub.s.saveTestStat(iter);}
-	  if(key=='n') SubDisplay.n();
-	  if(key=='o') SubDisplay.o();
-	  if(key=='s') SubDisplay.s();
-	  if(key=='P') SubDisplay.currentCorner=Mesh.idOfCornerWithClosestTo(F);
-	  if(key=='e') SubDisplay.edgeContraction();
-	  if(key=='m') SubDisplay.markCorner();
-	  if(key=='M') SubDisplay.markNeighbours();
-	  if(key=='p') new TetPealing(SubDisplay.getPov()).simplePeal();
-	  if(key=='S') {Sub.createOneSurface(iter);Mesh=Sub.getPov();SubDisplay=new subsurfaceDisplay(this, Sub);}//Mesh.displayirregularPoints();}
+	  if(key=='n') meshDisplay.n();
+	  if(key=='o') meshDisplay.o();
+	  if(key=='s') meshDisplay.s();
+	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
+//	  if(key=='e') SubDisplay.edgeContraction();
+//	  if(key=='m') SubDisplay.markCorner();
+//	  if(key=='M') SubDisplay.markNeighbours();
+//	  if(key=='p') new TetPealing(SubDisplay.getPov()).simplePeal();
+//	  if(key=='E') new TetPealing(SubDisplay.getPov()).removeEtets();
+//	  if(key=='S') {Sub.createOneSurface(iter);Mesh=Sub.getPov();SubDisplay=new subsurfaceDisplay(this, Sub);}//Mesh.displayirregularPoints();}
 	  if (key==CODED && keyCode==UP) {F.x+=5*cos(rx)*sin(ry); F.y-=5*cos(rx)*cos(ry);F.z+=5*sin(rx);}
 	  if (key==CODED && keyCode==DOWN) {F.x-=5*cos(rx)*sin(ry); F.y+=5*cos(rx)*cos(ry);F.z-=5*sin(rx);}
 	  if (key==CODED && keyCode==LEFT){F.x-=5*cos(ry);F.y-=5*sin(ry);}         
 	  if (key==CODED && keyCode==RIGHT){F.x+=5*cos(ry);F.y+=5*sin(ry);}
 	  //if(key=='S') Mesh.createSurface(0);
-	  if(key=='=') {for (int i=0;i<Mesh.nf;i++) Sub.marked[i]=true;};
+//	  if(key=='=') {for (int i=0;i<Mesh.nf;i++) Sub.marked[i]=true;};
 	  if(key=='c') Sub.checkSurface();//center=!center; // snaps focus F to the selected vertex of P (easier to rotate and zoom while keeping it in center)
-	  if(key=='t') tracking=!tracking; // snaps focus F to the selected vertex of P (easier to rotate and zoom while keeping it in center)
-	  if(key=='x' || key=='z' || key=='d') SubDisplay.setPickedTo(pp); // picks the vertex of P that has closest projeciton to mouse
-	  if(key=='d') SubDisplay.deletePicked();
-	  if(key=='i'){ SubDisplay.getPov().invertTets(0, 1);SubDisplay.getPov().checkMesh(); for (int i=0;i<20;i++){System.out.println(SubDisplay.getPov().O[i]);}}
-//	  if(key=='i') SubDisplay.insertClosestProjection(Of); // Inserts new vertex in P that is the closeset projection of O
-	  if(key=='W') Mesh.savepov("data/pts2");   // save vertices to pts2
-	  if(key=='L') {Mesh=povBuilder.loadpov("data/pts2");Sub=new subSurface(Mesh,"data/pts2");SubDisplay=new subsurfaceDisplay(this,Sub);}    // loads saved model
-	  if(key=='w') Mesh.savepov("data/pts");   // save vertices to pts
-	  if(key=='l'){Mesh=povBuilder.loadpov("data/pts");Sub=new subSurface(Mesh,"data/pts");SubDisplay=new subsurfaceDisplay(this,Sub);}
+//	  if(key=='t') tracking=!tracking; // snaps focus F to the selected vertex of P (easier to rotate and zoom while keeping it in center)
+	  if (key=='t') Sub.temporaryTest();
+//	  if(key=='x' || key=='z' || key=='d') SubDisplay.setPickedTo(pp); // picks the vertex of P that has closest projeciton to mouse
+//	  if(key=='d') SubDisplay.deletePicked();
+//	  if(key=='i'){ SubDisplay.getPov().invertTets(0, 1);SubDisplay.getPov().checkMesh(); for (int i=0;i<20;i++){System.out.println(SubDisplay.getPov().O[i]);}}
+////	  if(key=='i') SubDisplay.insertClosestProjection(Of); // Inserts new vertex in P that is the closeset projection of O
+//	  if(key=='W') Mesh.savepov("data/pts2");   // save vertices to pts2
+//	  if(key=='L') {Mesh=povBuilder.loadpov("data/pts2");Sub=new subSurface(Mesh,"data/pts2");SubDisplay=new subsurfaceDisplay(this,Sub);}    // loads saved model
+//	  if(key=='w') Mesh.savepov("data/pts");   // save vertices to pts
+//	  if(key=='l'){Mesh=povBuilder.loadpov("data/pts");Sub=new subSurface(Mesh,"data/pts");SubDisplay=new subsurfaceDisplay(this,Sub);}
 	  if(key=='a') animating=!animating; // toggle animation
 	  if(key==',') viewpoint=!viewpoint;
 	  if(key=='#') exit();
@@ -194,10 +202,10 @@ public class POVjava extends PApplet {
 	public void mouseDragged() {
 	  if (!keyPressed) {Of.add(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); }
 	  if (keyPressed && key==CODED && keyCode==SHIFT) {Of.add(ToK(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0)));};
-	  if (keyPressed && key=='x') SubDisplay.movePicked(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
-	  if (keyPressed && key=='z') SubDisplay.movePicked(ToK(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
-	  if (keyPressed && key=='X') Mesh.moveAll(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
-	  if (keyPressed && key=='Z') Mesh.moveAll(ToK(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+//	  if (keyPressed && key=='x') SubDisplay.movePicked(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+//	  if (keyPressed && key=='z') SubDisplay.movePicked(ToK(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+//	  if (keyPressed && key=='X') Mesh.moveAll(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+//	  if (keyPressed && key=='Z') Mesh.moveAll(ToK(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
 	  if (keyPressed && key=='f') { // move focus point on plane
 	    if(center) F.sub(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
 	    else F.add(ToIJ(vec.V((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 

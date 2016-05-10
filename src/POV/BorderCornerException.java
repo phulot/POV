@@ -1,7 +1,7 @@
 package POV;
 
 public class BorderCornerException extends Exception{
-	int o;
+	public int o;
 	private static final long serialVersionUID = 1L;
 
 	public BorderCornerException(int corner) {

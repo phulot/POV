@@ -7,6 +7,7 @@ import POV.*;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -307,6 +308,85 @@ public class subSurface {
 		perf=s.getPerf();
 		System.out.println(perf);
 		//s = new CreateSurfaceFromShell(this, 0);
+	}
+	
+	public void temporaryTest(){
+		double k=0;
+		double notk=0;
+		for (int i=0;i<12*pov.nt;i++){
+			Set<Integer> set = pov.edgeNeighbors(i);
+			boolean b =true;
+			for (Integer t:set){
+				if (t==-1) b=false;
+				else if (b){
+					for (int o = 0; o < 4; o++) {
+						try {
+							pov.O(4 * t + o);
+						} catch (BorderFaceException e) {
+							b=false;
+						}
+					}
+				}
+			}
+			if (b) k+=1/(double)set.size();
+			else if (set.contains(-1)) notk+=1/(double)(set.size()-1);
+			else notk+=1/(double)(set.size());
+		}
+		System.out.println(k);
+		System.out.println(notk);
+//		HashMap<Integer,Integer> snakes = new HashMap<>();
+//		LinkedList<Integer> l = new LinkedList<>();
+//		for (int i=0;i<pov.nt;i++){
+//			snakes.put(i, i);
+//			l.add(i);
+//		}
+//		l.addLast(-1);
+//		boolean mod=true;
+//		boolean mod2=true;
+//		while(!l.isEmpty()&&mod){
+////			mod =false;
+//			int head= l.pollFirst();
+//			if (head==-1){mod=mod2;mod2=false;l.addLast(-1);}
+//			else{
+//				l.addLast(head);
+//				Integer queue = snakes.get(head);
+//				if (queue==null)l.remove((Integer)head);
+//				else{
+//					for (int o=0;o<4;o++){
+//						try {
+//							Integer v;
+//							if ((v=snakes.get(pov.tetraFromFace(pov.O(4*head+o))))!=null){
+//								snakes.put(queue,snakes.get(v));
+//								snakes.put(snakes.get(v),queue);
+//								l.addLast(snakes.get(v));
+//								l.addLast(queue);
+//								snakes.remove(v);
+//								l.remove((Integer)v);
+//								snakes.remove(head);o=10;
+//								l.remove((Integer)head);
+//								mod2 =true;
+//							}
+//						} catch (BorderFaceException e) {
+//						}
+//					}
+//				}
+//			}
+//		}
+//		System.out.println(snakes.size());
+//	}
+//		double k=0,sum=0,max=0;
+//		int[] occurence= new int[20];
+//		for (int i=0;i<12*pov.nt;i++){
+//			Set<Integer> set = pov.edgeNeighbors(i);
+//			if (set.contains(-1)){
+////				System.out.println(set+" "+set.size());
+//				max=Math.max(max, set.size());
+//				occurence[set.size()-2]++;
+//				k+=1/(double)(set.size()-1);sum++;
+//			}
+//		}
+//		System.out.println("average number of neighbours on border "+(sum/(double)k));
+//		for (int i=0;i<max;i++)System.out.println(occurence[i]);
 	}
 	/**
 	 * create nbiter subsurface and take the best one (perf meaning)

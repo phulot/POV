@@ -8,9 +8,15 @@ import java.util.Set;
 
 import POV.BorderFaceException;
 import POV.POV;
+import cornerDS.cornerBasedDS;
 
 public class TetPealing {
 	POV pov;
+	int Y;
+	int E;
+	int newE;
+	int D;
+	int F;
 	
 	public TetPealing(POV pov) {
 		this.pov = pov;
@@ -144,6 +150,7 @@ public class TetPealing {
 				}
 			}
 			if (k==3){
+				Y++;
 				if (s.contains((Integer)t)) s.remove((Integer)t);
 				if (s.contains((Integer) (pov.nt - 1))) {
 					s.remove((Integer) (pov.nt - 1));
@@ -163,9 +170,25 @@ public class TetPealing {
 //				c++;
 			}
 			else{
-				if (t>=pov.nt) System.out.println(t);
-				if (isEtet(t,pov))
+				int type=getTetType(t, pov);
+				if (type==20)
 					s.addFirst(t);
+				if (type==10){
+					F++;
+					if (s.contains((Integer)t)) s.remove((Integer)t);
+					if (s.contains((Integer) (pov.nt - 1))) {
+						s.remove((Integer) (pov.nt - 1));
+						s.add((Integer) t);
+					}
+					pov.invertTets(t, pov.nt-1);
+					for (int i=0;i<4;i++)
+					try {
+						l.add(pov.tetraFromFace(pov.O(4*(pov.nt-1)+i)));
+					} catch (BorderFaceException e) {
+					}
+					pov.removeTetrahedron(pov.nt-1);
+				}
+					
 			}
 //			}
 //			l=temp;
@@ -173,13 +196,15 @@ public class TetPealing {
 		return s;
 	}
 	
-	static int getTetType(int t, POV pov){
+	public static int getTetType(int t, POV pov){
 		int k=0;
 		int f0=-1,f1=-1;
+		int c=-1;
 		for (int j=0;j<4;j++){
 			try {
 				pov.O(4*t+j);
 			} catch (BorderFaceException e) {
+				c=pov.rel[j]+12*t;
 				if (f0==-1){
 					f0=4*t+j;
 				}else f1=4*t+j;
@@ -191,6 +216,39 @@ public class TetPealing {
 				return 20;
 			}
 			return 21;
+		}
+		if (k==1){
+			if (pov.vertexNeighbors(c).contains(-1))
+				return 11;
+			else return 10;
+		}
+		return k;
+	}
+	public static int getTetType(int t, cornerBasedDS pov){
+		int k=0;
+		int f0=-1,f1=-1;
+		int c=-1;
+		for (int j=0;j<4;j++){
+			try {
+				pov.DS.O(4*t+j);
+			} catch (BorderFaceException e) {
+				c=pov.rel[j]+12*t;
+				if (f0==-1){
+					f0=4*t+j;
+				}else f1=4*t+j;
+				k++;
+			}
+		}
+		if (k==2){
+			if (!pov.edgeNeighbors(pov.cornerOftetra(f0, f1)).contains(-1)){
+				return 20;
+			}
+			return 21;
+		}
+		if (k==1){
+			if (pov.vertexNeighbors(c).contains(-1))
+				return 11;
+			else return 10;
 		}
 		return k;
 	}
@@ -251,14 +309,18 @@ public class TetPealing {
 	}
 	static boolean isFtet(int t,POV pov){
 		int k=0;
+		int c=0;
 		for (int j=0;j<4;j++){
 			try {
 				pov.O(4*t+j);
 			} catch (BorderFaceException e) {
+				c=pov.rel[j]+12*t;
 				k++;
 			}
 		}
 		if (k==1){
+			if (pov.vertexNeighbors(c).contains(-1))
+				return false;
 			return true;
 		}
 		return false;
@@ -269,7 +331,7 @@ public class TetPealing {
 	 */
 	int getEtet(){
 		for (int i=0;i<pov.nt;i++){
-			if (isEtet(i, pov)) return i;
+			if (getTetType(i, pov)==20) return i;
 		}
 		System.out.println("E");
 		return -1;
@@ -277,19 +339,18 @@ public class TetPealing {
 	
 	public void simplePeal(){
 		System.out.println("nt : "+pov.nt);
-//		int Y=0;
+		int Y=0;
 		removeYtets();
 		LinkedList<Integer> S = new LinkedList<>();
 		boolean b= true;
-		int E=0;
-		int D=0;
+		E=0;Y=0;F=0;newE=0;
+		D=0;     
 		int e=0;
-		int e2=0;
 		while(pov.nt!=0&&b){
 			boolean bool=true;
 			while (bool){
 				if (S.isEmpty()){
-					e2++;
+					newE++;
 					e = getEtet();
 					bool=false;
 				}
@@ -297,14 +358,12 @@ public class TetPealing {
 					e=S.pollFirst();
 					bool = !isEtet(e,pov);
 					if (bool) {
-						System.out.println(getTetType(e,pov));
-						S.remove((Integer)e);
+//						System.out.println(getTetType(e,pov));
+//						S.remove((Integer)e);
 					}
 				}
 			}
-//			System.out.println("nt : "+nt);
 			if (b=(e!=-1)){
-				assert (e<pov.nt);
 				ArrayList<Integer> l = new ArrayList<>();
 				pov.invertTets(e, pov.nt-1);
 				for (int j=0;j<4;j++)
@@ -315,18 +374,53 @@ public class TetPealing {
 					S.remove((Integer) (pov.nt - 1));
 					S.addFirst((Integer) e);
 				}
-				pov.removeTetrahedron(pov.nt-1);
+				pov.removeTetrahedron(pov.nt -1);
 				S=removeYtets(l,S);
 			}
 		}
-		D+= removeDtets();
+//		D+= removeDtets();
 		System.out.println("E : "+E);
-		System.out.println("new E : "+e2);
-//		System.out.println("Y : "+Y);
+		System.out.println("new E : "+newE);
+		System.out.println("Y : "+Y);
+		System.out.println("F : "+F);
 		System.out.println("D : "+D);
-		if (pov.nt==0) System.out.println("pealing success");
+		if (pov.nt==1) System.out.println("pealing success");
 		else System.out.println("pealing failed : "+pov.nt);
 		System.out.println("genus "+pov.computegenus());
+	}
+	
+	public void removeEtets(){
+		System.out.println("nt : "+pov.nt);
+		boolean b= true;
+		newE=0;
+		int e=0;
+		LinkedList<Integer> l = new LinkedList<>();
+		for (int n=0;n<pov.nt;n++)l.add(n);
+		while (pov.nt != 0 && b&&!l.isEmpty()) {
+			e=l.pollFirst();
+			int k=getTetType(e, pov);
+			if (k==20){
+				pov.invertTets(e, pov.nt-1);
+				newE++;
+				for (int j=0;j<4;j++)
+					try {l.add(pov.tetraFromFace(pov.O(4*(pov.nt-1)+j)));} catch (BorderFaceException e1) {}
+				if (b = (e != -1)) {
+					if (l.contains((Integer)e)) l.remove((Integer)e);
+					if (l.contains((Integer) (pov.nt - 1))) {
+						l.remove((Integer) (pov.nt - 1));
+						l.addFirst((Integer) e);
+					}
+					pov.removeTetrahedron(pov.nt - 1);
+				}
+			}
+//			else if (k==0||k==10||k==11){
+//				l.addLast(e);
+//			}
+		}
+		System.out.println("removed E : "+newE);
+		System.out.println("nt : "+pov.nt);
+		System.out.println("genus "+pov.computegenus());
+
 	}
 	
 	public void Cut1Loops(){

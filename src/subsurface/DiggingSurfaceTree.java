@@ -15,10 +15,10 @@ public class DiggingSurfaceTree extends Tree{
 		String ss=t.borderToString();
 		boolean res= ss.equals("E");
 		res|=ss.equals("A")||ss.equals("B")||ss.equals("C");
-		res|=(ss.equals("AB")&&(t.s.unmarkedVertexNeighborsNbr(t.cell.cor,false)>1));
-		res|=(ss.equals("AC")&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.s.getPov().n(t.cell.cor)),false)>1));
-		res|=(ss.equals("BC")&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.cell.cor),false)>1));
-		res|=(t.s.equals("ABC")&&(t.s.unmarkedVertexNeighborsNbr(t.cell.cor,false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.s.getPov().n(t.cell.cor)),false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.cell.cor),false)>1));
+//		res|=(ss.equals("AB")&&(t.s.unmarkedVertexNeighborsNbr(t.cell.cor,false)>1));
+//		res|=(ss.equals("AC")&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.s.getPov().n(t.cell.cor)),false)>1));
+//		res|=(ss.equals("BC")&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.cell.cor),false)>1));
+//		res|=(t.s.equals("ABC")&&(t.s.unmarkedVertexNeighborsNbr(t.cell.cor,false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.s.getPov().n(t.cell.cor)),false)>1)&&(t.s.unmarkedVertexNeighborsNbr(t.s.getPov().n(t.cell.cor),false)>1));
 //		System.out.println(res+" "+ss);
 		return res;
 	}

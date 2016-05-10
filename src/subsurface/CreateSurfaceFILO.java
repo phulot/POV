@@ -156,67 +156,67 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 //			if (t!=null)
 //				while ((t=t.next())!=null&&iter<it){iter++;}
 //		}
-		System.out.println("added "+(iter-temp));
-		for (int i=0;i<p.nt;i++){
-			if (!s.mm[i]){
-				for (int j=0;j<4;j++){
-					try {s.getPov().O(4*i+j);} 
-					catch (BorderFaceException e) {//test if face on border 
-						Cell tr = new Cell(3*(4*i+j), s);
-						if (tr.GetType()==8){
-							s.show[i]=true;
-							System.out.println("a");
-							erase1Apartment(4*i+j);
-						}
-						j=5;
-					}
-				}
-			}
-		}
+//		System.out.println("added "+(iter-temp));
+//		for (int i=0;i<p.nt;i++){
+//			if (!s.mm[i]){
+//				for (int j=0;j<4;j++){
+//					try {s.getPov().O(4*i+j);} 
+//					catch (BorderFaceException e) {//test if face on border 
+//						Cell tr = new Cell(3*(4*i+j), s);
+//						if (tr.GetType()==8){
+//							s.show[i]=true;
+//							System.out.println("a");
+//							erase1Apartment(4*i+j);
+//						}
+//						j=5;
+//					}
+//				}
+//			}
+//		}
 		for (int i=0;i<p.nt;i++){
 			if (s.mm[i])
 				s.markTetrahedron(i);
 		}
-//		int k = 0; 
-//		for (int i = 0; i < p.nv; i++) {
-//			if (s.vertexmarked[i] != 0)
-//				k++;
-//		}
-//		System.out.println("perf : "+k / (double) p.nv);
-//		System.out.println("surface faces : "+2*(k-2));
-//		System.out.println("theorical average valence : "+(6*(k-2))/(double)k);
-//		k=0;
+		int k = 0; 
+		for (int i = 0; i < p.nv; i++) {
+			if (s.vertexmarked[i] != 0)
+				k++;
+		}
+		System.out.println("perf : "+k / (double) p.nv);
+		System.out.println("surface faces : "+2*(k-2));
+		System.out.println("theorical average valence : "+(6*(k-2))/(double)k);
+		k=0;
+		for (int i = 0; i < p.nt; i++) {
+			if (s.marked[4*i])
+				k++;
+		}
+		System.out.println("marked tetrahedron : " +k);
+		k = 0;
+		int kk=0;
+		int n=0;
+		double[] stat=new double[20];
+		for (int i = 0; i < 12*p.nt; i++) {
+			n++;
+			if (!s.edgeIsInterior(i)) {
+				int l = s.EdgeNbrMarkedNeighbors(i);
+				stat[l]+=1d/p.edgeNeighbors(i).size();
+				k = Math.max(k, l);
+				kk += l;
+				if (l >16) {
+					s.show[i / 12] = true;
+				}
+			}
+		}
+		System.out.println("max neighbors number : "+k);
+		System.out.println("average neighbors number : "+kk/(n*1d));
+		for (int i=0;i<k+1;i++)System.out.println(stat[i]/2);
 //		for (int i = 0; i < p.nt; i++) {
-//			if (s.marked[4*i])
+//			if (s.isIsolated(i) == 0)
 //				k++;
 //		}
-//		System.out.println("marked tetrahedron : " +k);
-//		k = 0;
-//		int kk=0;
-//		int n=0;
-//		double[] stat=new double[20];
-//		for (int i = 0; i < 12*p.nt; i++) {
-//			n++;
-//			if (!s.edgeIsInterior(i)) {
-//				int l = s.EdgeNbrMarkedNeighbors(i);
-//				stat[l]+=1d/p.edgeNeighbors(i).size();
-//				k = Math.max(k, l);
-//				kk += l;
-//				if (l >16) {
-//					s.show[i / 12] = true;
-//				}
-//			}
-//		}
-//		System.out.println("max neighbors number : "+k);
-//		System.out.println("average neighbors number : "+kk/(n*1d));
-//		for (int i=0;i<20;i++)System.out.println(stat[i]/2);
-////		for (int i = 0; i < p.nt; i++) {
-////			if (s.isIsolated(i) == 0)
-////				k++;
-////		}
-////		System.out.println("isolated vertices : " +k);
-//		
-//		exceptionsNbr();
+//		System.out.println("isolated vertices : " +k);
+		
+		exceptionsNbr();
 	}
 	
 	public int exceptionsNbr(){
@@ -236,7 +236,7 @@ public class CreateSurfaceFILO extends SurfaceCreation {
 			kk+=s.vertexmarked[i];
 			n2+= s.vertexmarked[i]*s.vertexmarked[i];
 		}
-		for (int i=0;i<40;i++)System.out.println(stat[i]);
+		for (int i=0;i<k+1;i++)System.out.println(stat[i]);
 //		for (int i = 0; i < p.nf; i++) {
 //			if (s.marked[i]){
 //				if (s.vertexmarked[p.v(3*i)]>10)
