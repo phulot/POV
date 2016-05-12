@@ -36,7 +36,9 @@ public class POVjava extends PApplet {
 	subSurface Sub;
 //	subsurfaceDisplay SubDisplay;
 	cornerBasedDS Mesh; // tet mesh
+//	POV Mesh;
 	cornerDS.POVDisplay meshDisplay;
+//	POVDisplay meshDisplay;
 
 	public void settings() {
 		size(900, 900, "processing.opengl.PGraphics3D");
@@ -51,6 +53,7 @@ public class POVjava extends PApplet {
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
 //	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
 	  POV pov = povBuilder.loadpov("data/"+meshName);
+//	  Mesh=new cornerBasedDS(pov);
 	  Mesh = new cornerBasedDS(OppositeVertexBuilder.loadFromPOV(pov));
 //	  Mesh = new cornerBasedDS(pov);
 //	  Mesh = povBuilder.createRandomMesh(1000, 1);
@@ -107,14 +110,17 @@ public class POVjava extends PApplet {
 		meshDisplay.drawSelectedCorner();
 
 		if (showWalls) {
-			stroke(black);strokeWeight(3);noFill();
+			stroke(black);strokeWeight(2);fill(yellow);
+			
+//			stroke(black);strokeWeight(3);noFill();
 			// Mesh.showWall(); strokeWeight(6);
 //			SubDisplay.showWall();
 			meshDisplay.showWall();
-			fill(yellow, 300);strokeWeight(1);noStroke();
+//			fill(yellow, 300);strokeWeight(10);noStroke();
 //			SubDisplay.showMarkedWall();
 //			SubDisplay.showWallm();
-			fill(red, 300);strokeWeight(1);noStroke();
+//			fill(red, 300);strokeWeight(1);noStroke();
+//			meshDisplay.showWall();
 			// SubDisplay.showShowWall();
 	   }
 
@@ -159,7 +165,7 @@ public class POVjava extends PApplet {
 	  if(key=='n') meshDisplay.n();
 	  if(key=='o') meshDisplay.o();
 	  if(key=='s') meshDisplay.s();
-	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
+//	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
 //	  if(key=='e') SubDisplay.edgeContraction();
 //	  if(key=='m') SubDisplay.markCorner();
 //	  if(key=='M') SubDisplay.markNeighbours();

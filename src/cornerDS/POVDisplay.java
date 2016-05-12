@@ -1,4 +1,6 @@
 package cornerDS;
+import java.util.Iterator;
+
 import Applet.*;
 import POV.BorderCornerException;
 import POV.pt;
@@ -94,21 +96,24 @@ public class POVDisplay {
 	 * display the tetrahedrization
 	 */
 	public void showWall() {
-		for (int t : pov.DS.allTetIDS()) {
-			if (pov.DS.V(4 * t) != -1&&TetPealing.getTetType(t, pov)!=21) {
-				display.show(pov.DS.G(pov.DS.V(4 * t + 1)), pov.DS.G(pov.DS.V(4 * t + 2)), pov.DS.G(pov.DS.V(4 * t + 3)));
-				display.show(pov.DS.G(pov.DS.V(4 * t)), pov.DS.G(pov.DS.V(4 * t + 2)), pov.DS.G(pov.DS.V(4 * t + 3)));
-				display.show(pov.DS.G(pov.DS.V(4 * t)), pov.DS.G(pov.DS.V(4 * t + 1)), pov.DS.G(pov.DS.V(4 * t + 3)));
-				display.show(pov.DS.G(pov.DS.V(4 * t)), pov.DS.G(pov.DS.V(4 * t + 1)), pov.DS.G(pov.DS.V(4 * t + 2)));
-			}
+		long time = System.currentTimeMillis();
+		for (int t : pov.DS) {
+//			if (pov.DS.V(4 * t) != -1&&TetPealing.getTetType(t, pov)!=21) {
+			int[] V= pov.DS.Vertices(t);
+			display.show(pov.DS.G(V[1]), pov.DS.G(V[2]), pov.DS.G(V[3]));
+			display.show(pov.DS.G(V[0]), pov.DS.G(V[2]), pov.DS.G(V[3]));
+			display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[3]));
+			display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[2]));
+//			}
 		}
+		System.out.println("display time : "+(System.currentTimeMillis()-time));
 	}
 	/**
 	 * display the tetrahedrization, 
 	 */
 	public void showtetTypes() {
 		int k;
-		for (int t : pov.DS.allTetIDS()) {
+		for (int t : pov.DS) {
 			k=TetPealing.getTetType(t, pov);
 			if (k==20){
 				display.fill(display.yellow, 300);display.strokeWeight(1);display.noStroke();
@@ -140,7 +145,7 @@ public class POVDisplay {
 	public int idOfVertexWithClosestScreenProjectionTo(pt M) { // for picking a vertex
 		// with the mouse
 		display.pp = 0;
-		for (int i : pov.DS.allTetIDS())
+		for (int i : pov.DS)
 			if (pt.d(M, display.ToScreen(pov.DS.G(i))) <= pt.d(M, display.ToScreen(pov.DS.G(display.pp))))
 				display.pp = i;
 		return display.pp;

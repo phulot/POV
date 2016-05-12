@@ -2,6 +2,7 @@ package cornerDS;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -360,9 +361,12 @@ public class cornerBasedDS {
 	 */
 	public int idOfCornerClosestTo(pt M) {
 		int temp=0;
-		for (int i: DS.allTetIDS())
+		Iterator<Integer> it = DS.iterator();
+		while (it.hasNext()){
+			int i= it.next();
 			if (pt.d(M, DS.G(DS.V(i))) < pt.d(M, DS.G(DS.V(temp))))
 				temp = i;
+		}
 		return 12*(temp/4)+rel[temp%4];
 	}
 }

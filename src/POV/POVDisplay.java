@@ -13,7 +13,7 @@ public class POVDisplay {
 	protected int iv = 0; 
 
 	
-	protected POVDisplay(POVjava dis,POV p) {
+	public POVDisplay(POVjava dis,POV p) {
 		pov=p;
 		display=dis;
 	}

@@ -1,67 +1,90 @@
 package oppositeVertex;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import POV.BorderFaceException;
 import POV.pt;
 import cornerDS.faceOperators;
 
-public class OppositeVertex implements faceOperators{
+public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	Triangulation border;
 	HashMap<Integer,Set<Integer>> interiorEdges;
 	int[] oppositeVertex;
 	HashMap<Integer,Set<Integer>> oppositeFaces;
-	int maxDegree = 40;
+	Integer [] tetids;
+	int maxDegree = 50;
 	int maxfaces = 10000;
 	
 	
-	/**
-	 * face index -> face id -> opposite vertex id
-	 * @param f : face index
-	 * @return vertex ID
-	 */
-	public int getOppositeVertex(int f){
-		return oppositeVertex[f];
+	public int storageCost(){
+		System.out.println(hashMapSize(interiorEdges));
+//		return 2*border.sizeOfFaces()+oppositeVertex.length+interiorEdges.size();
+//		return border.storageCost()+oppositeVertex.length+interiorEdges.size();
+		return hashMapSize(interiorEdges)+border.sizeOfFaces()+tetids.length+border.storageCost();
 	}
 	
 	public void buildOppositeFaces(){
 		oppositeFaces = new HashMap<>();
 		for (int i=0;i<border.sizeOfFaces();i++){
-			Set<Integer> s = oppositeFaces.get(oppositeVertex[i]);
-			if (s==null) {s=new HashSet<Integer>();oppositeFaces.put(oppositeVertex[i], s);}
-			s.add(i);
+			boolean b=true;
+//			for (Integer face : border.incidentFaces(oppositeVertex[i])){
+//				if (oppositeVertex[face]==border.neighbor(0, i)||oppositeVertex[face]==border.neighbor(1, i)||oppositeVertex[face]==border.neighbor(2, i))
+//					{b=false;break;}
+//			}
+			if (b){
+				Set<Integer> s = oppositeFaces.get(oppositeVertex[i]);
+				if (s==null){s=new HashSet<Integer>();oppositeFaces.put(oppositeVertex[i], s);}
+				s.add(border.getVertexID(i, 0));
+				s.add(border.getVertexID(i, 1));
+				s.add(border.getVertexID(i, 2));
+				
+//				Set<Integer> s = oppositeFaces.get(oppositeVertex[i]);
+//				if (s==null) {s=new HashSet<Integer>();oppositeFaces.put(oppositeVertex[i], s);}
+//				s.add(i);
+			}
 		}
 	}
-//	public void remapFaces(){
-////		for (TriangulationDSFace_2<Point_3> f:border.faces){
-////			f.index=remapping[f.index];
-////		}
-////		for (TriangulationDSVertex_2<Point_3> v:border.vertices){
-////			v.setFace(c);
-////		}
-//	}
 	
-//	public void reorderoppositeVertex(){
-//		remapping=new int[border.sizeOfFaces()];
-//		int[] res = new int[border.sizeOfFaces()-border.sizeOfVertices()];
-//		for (int i=0;i<res.length;i++){res[i]=-1;}
-//		int k=0;
-//		for (int i=0;i<res.length;i++){
-//			if (res[oppositeVertex[i]]==-1){
-//				remapping[i]=oppositeVertex[i];
-////				res[oppositeVertex[i]]=oppositeVertex[i];
-//			}
-//			else {
-//				remapping[i]=k+border.sizeOfVertices();
-//				res[k] = oppositeVertex[i];
-//				k++;
-//			}
-//		}
-////		remapFaces();
-//	}
+	public int hashMapSize(HashMap<Integer,Set<Integer>> map){
+		int k=0;
+		for (Integer e:map.keySet())
+			k+=map.get(e).size();
+		return k;
+	}
+	/**
+	 * return the four vertices of a tetrahedron
+	 * @param tetid : tet id
+	 * @return vertex ids Array
+	 */
+	public int[] Vertices(int tetid){
+		int[] res = new int[4];
+		if (tetid <maxfaces){
+			res[0] = oppositeVertex[tetid];
+			res[1] = border.getVertexID(tetid,2);
+			res[2] = border.getVertexID(tetid,1);
+			res[3] = border.getVertexID(tetid,0);
+		}
+		else {
+			int t = tetid-maxfaces;
+			res[0]=(int) (t/Math.pow(maxDegree, 3));
+//			System.out.println(t);
+			Set<Integer> set = VertexNeighbor(t);
+			System.out.println(set);
+			Integer[] s = set.toArray(new Integer[0]);
+			for (int i=0;i<3;i++){
+				res[3-i]=t%s.length;
+				t=t/s.length;
+			}
+			for (int i=1;i<4;i++){
+				res[i]=s[res[i]];
+			}
+		}
+		return res;
+	}
+	
 	/**
 	 * Vertex operation 
 	 * @param tetid : tet id
@@ -77,13 +100,14 @@ public class OppositeVertex implements faceOperators{
 			int t = tetid-maxfaces;
 			int v = t/(int)(Math.pow(maxDegree,3));
 			if (relativeVertex==0) return v;
-			Integer[] s = VertexNeighbor(v).toArray(new Integer[0]);
-			Arrays.sort(s);
-			t=t%(int)(Math.pow(maxDegree,3d));
-			if (relativeVertex==1) return s[(t/(int)(Math.pow(maxDegree,2)))];
-			t=t%(int)(Math.pow(maxDegree,2));
-			if (relativeVertex==2) return s[(t/maxDegree)];
-			return s[t%maxDegree];
+			Set<Integer> set = VertexNeighbor(v);
+			System.out.println(set);
+			Integer[] s = set.toArray(new Integer[0]);
+			t=t%(int)(Math.pow(s.length,3d));
+			if (relativeVertex==1) return s[(t/(int)(Math.pow(s.length,2)))];
+			t=t%(int)(Math.pow(s.length,2));
+			if (relativeVertex==2) return s[(t/s.length)];
+			return s[t%s.length];
 		}
 	}
 	
@@ -117,7 +141,6 @@ public class OppositeVertex implements faceOperators{
 	 * @param v : vertex id
 	 * @return set of vertex ids
 	 */
-	//TODO verify correctness
 	public Set<Integer> VertexNeighbor(int v){
 		Set<Integer> res = new HashSet<>();
 		for (Integer f:border.incidentFaces(v)){
@@ -125,35 +148,225 @@ public class OppositeVertex implements faceOperators{
 			res.add(border.getVertexID(f,1));
 			res.add(border.getVertexID(f,2));
 			res.add(oppositeVertex[f]);
+			for (Integer face : border.incidentFaces(oppositeVertex[f]))
+				if (oppositeVertex[face]==v){
+					res.add(border.getVertexID(face,0));
+					res.add(border.getVertexID(face,1));
+					res.add(border.getVertexID(face,2));
+				}
 		}
 		if (oppositeFaces.get(v)!=null)
-			for (int f:oppositeFaces.get(v)){
-				res.add(border.getVertexID(f,0));
-				res.add(border.getVertexID(f,1));
-				res.add(border.getVertexID(f,2));
+			res.addAll(oppositeFaces.get(v));
+//			for (int f:oppositeFaces.get(v)){
+//				res.add(border.getVertexID(f,0));
+//				res.add(border.getVertexID(f,1));
+//				res.add(border.getVertexID(f,2));
+//			}
+		if (interiorEdges.get(v)!=null)
+			res.addAll(interiorEdges.get(v));
+		res.remove((Integer)v);
+		return res;
+	}
+	public Set<Integer> VertexNeighbor(int tetid, int relver){
+		int v;
+		if (tetid <maxfaces){
+			if (relver==0) v=oppositeVertex[tetid];
+			else v=border.getVertexID(tetid,3-relver);
+		}
+		else{
+			int t = tetid-maxfaces;
+			int v0 = t/(int)(Math.pow(maxDegree,3));
+			if (relver==0) v=v0;
+			else{
+				Set<Integer> set = VertexNeighbor(v0);
+				System.out.println(set);
+				Integer[] s = set.toArray(new Integer[0]);
+				t=t%(int)(Math.pow(s.length,3d));
+				if (relver==1) v= s[(t/(int)(Math.pow(s.length,2)))];
+				else {
+					t=t%(int)(Math.pow(s.length,2));
+					if (relver==2) v= s[(t/s.length)];
+					else v= s[t%s.length];
+				}
 			}
+		}
+		Set<Integer> res = new HashSet<>();
+		for (Integer f:border.incidentFaces(v)){
+			res.add(border.getVertexID(f,0));
+			res.add(border.getVertexID(f,1));
+			res.add(border.getVertexID(f,2));
+			res.add(oppositeVertex[f]);
+			for (Integer face : border.incidentFaces(oppositeVertex[f]))
+				if (oppositeVertex[face]==v){
+					res.add(border.getVertexID(face,0));
+					res.add(border.getVertexID(face,1));
+					res.add(border.getVertexID(face,2));
+				}
+		}
+		if (oppositeFaces.get(v)!=null)
+			res.addAll(oppositeFaces.get(v));
+//			for (int f:oppositeFaces.get(v)){
+//				res.add(border.getVertexID(f,0));
+//				res.add(border.getVertexID(f,1));
+//				res.add(border.getVertexID(f,2));
+//			}
 		if (interiorEdges.get(v)!=null)
 			res.addAll(interiorEdges.get(v));
 		res.remove((Integer)v);
 		return res;
 	}
 	
+//	public Iterable<Integer> VertexNeighbor(int v){
+//		Iterator<Integer> it = new Iterator<Integer>() {
+//			int i=0;
+//			int f;
+//			Iterator<Integer> it1=border.incidentFaces(v).iterator();
+//			Iterator<Integer> it2=null;
+////			Iterator<Integer> it3 = interiorEdges.get(v).iterator();
+////			Iterator<Integer> it4 = oppositeFaces.get(v).iterator();
+//			int whichit;
+//			@Override
+//			public boolean hasNext() {
+//				if (oppositeFaces.get(v)!=null){
+//					return whichit<4||it1.hasNext();
+//				}
+//				if (interiorEdges.get(v)!=null){
+//					return whichit<3||it1.hasNext()||i<3;
+//				}
+//				if (it2!=null){
+//					return it1.hasNext()||it2.hasNext()||i<3;
+//				}
+//				return it1.hasNext();
+//			}
+//
+//			@Override
+//			public Integer next() {
+//				if (i<3&&whichit==1)
+//					return border.getVertexID(f,i++);
+//				if (i==3&&whichit==1){
+//					i=0;
+//					whichit=2;
+//					it2=border.incidentFaces(oppositeVertex[f]).iterator();
+//					f=it2.next();
+//					return border.getVertexID(f,i++);
+//				}
+//				if (i<3&&whichit==2)
+//					return border.getVertexID(f,i++);
+//				if (i==3&&whichit==2){
+//					i=0;
+//					if (it2.hasNext()){
+//						f=it2.next();
+//						return border.getVertexID(f,i++);
+//					}
+//					if (it1.hasNext()){
+//						f=it1.next();
+//						return border.getVertexID(f,i++);
+//					}
+//					if (interiorEdges.get(v)!=null){
+//						it1=interiorEdges.get(v).iterator();
+//						whichit=3;
+//						return it1.next();
+//					}
+//					if (oppositeFaces.get(v)!=null){
+//						it1=oppositeFaces.get(v).iterator();
+//						whichit=4;
+//						f=it1.next();
+//						return border.getVertexID(f, i);
+//					}
+//				}
+//				if (whichit==3){
+//					if (it1.hasNext())return it1.next();
+//					if (oppositeFaces.get(v)!=null){
+//						it1=oppositeFaces.get(v).iterator();
+//						whichit=4;
+//						f=it1.next();
+//						return border.getVertexID(f, i++);
+//					}
+//				}
+//				if (whichit==4&&i<3){
+//					return border.getVertexID(f,i++);
+//				}
+//				if (whichit==4&&i==3){
+//					f=it1.next();
+//					i=0;
+//					return border.getVertexID(f,i++);
+//				}
+//				return null;
+//			}
+//		};
+//		return new Iterable<Integer>() {
+//			@Override
+//			public Iterator<Integer> iterator() {
+//				return it;
+//			}
+//		};
+//	}
+	
 	public boolean isNeighbor(int v,int u){
 		if (u==v)return false;
 		if (interiorEdges.get(u)!=null&&interiorEdges.get(u).contains(v)) return true;
+		if (oppositeFaces.get(u)!=null&&oppositeFaces.get(u).contains(v)) return true;
 		for (Integer f:border.incidentFaces(u)){
 			if (border.getVertexID(f,0)==v)return true;
 			if (border.getVertexID(f,1)==v)return true;
 			if (border.getVertexID(f,2)==v)return true;
 			if (oppositeVertex[f]==v) return true;
 		}
-		if (oppositeFaces.get(u)!=null)
-			for (int f:oppositeFaces.get(u)){
-				if (border.getVertexID(f,0)==v)return true;
-				if (border.getVertexID(f,1)==v)return true;
-				if (border.getVertexID(f,2)==v)return true;
-			}
+		for (Integer f:border.incidentFaces(u)){
+			for (Integer face : border.incidentFaces(oppositeVertex[f]))
+				if (oppositeVertex[face]==v){
+					if (border.getVertexID(face,0)==v)return true;
+					if (border.getVertexID(face,1)==v)return true;
+					if (border.getVertexID(face,2)==v)return true;
+				}
+		}
+//		if (oppositeFaces.get(u)!=null)
+//			for (int f:oppositeFaces.get(u)){
+//				if (border.getVertexID(f,0)==v)return true;
+//				if (border.getVertexID(f,1)==v)return true;
+//				if (border.getVertexID(f,2)==v)return true;
+//			}
 		return false;
+	}
+	
+	public String NeighborType(int v,int u){
+		if (u==v)return "not Neighbor";
+		if (interiorEdges.get(u)!=null&&interiorEdges.get(u).contains(v)) return "interior edge";
+		if (oppositeFaces.get(u)!=null&&oppositeFaces.get(u).contains(v)) return "opposite face";
+		for (Integer f:border.incidentFaces(u)){
+			if (border.getVertexID(f,0)==v)return "incident face";
+			if (border.getVertexID(f,1)==v)return "incident face";
+			if (border.getVertexID(f,2)==v)return "incident face";
+			if (oppositeVertex[f]==v) return "opposite vertex";
+		}
+		for (Integer f:border.incidentFaces(u)){
+			for (Integer face : border.incidentFaces(oppositeVertex[f]))
+				if (oppositeVertex[face]==v){
+					if (border.getVertexID(face,0)==v)return "ring";
+					if (border.getVertexID(face,1)==v)return "ring";
+					if (border.getVertexID(face,2)==v)return "ring";
+				}
+		}
+//		if (oppositeFaces.get(u)!=null)
+//			for (int f:oppositeFaces.get(u)){
+//				if (border.getVertexID(f,0)==v)return true;
+//				if (border.getVertexID(f,1)==v)return true;
+//				if (border.getVertexID(f,2)==v)return true;
+//			}
+		return "not Neighbor";
+	}
+	
+	public int checkNeighbors(){
+		int err =0;
+		for (int i=0;i<border.sizeOfVertices();i++){
+			for (int j=0;j<border.sizeOfVertices();j++){
+				if (isNeighbor(i,j)&&!isNeighbor(j, i)){
+					err++;
+					System.out.println(NeighborType(i,j));
+				}
+			}
+		}
+		return err;
 	}
 	/**
 	 * build the id of an external tet form one of his external faces
@@ -163,10 +376,19 @@ public class OppositeVertex implements faceOperators{
 	private int buildBorderID(Integer f){
 		int ID =f;
 		for (int i=0;i<3;i++){
-			if (getOppositeVertex(border.neighbor(i,f))==border.getVertexID(f, i))
+			if (oppositeVertex[border.neighbor(i,f)]==border.getVertexID(f, i))
 				ID=Math.min(ID,border.neighbor(i,f));
 		}
 		return ID;
+	}
+	
+	private boolean isABorderId(int f){
+		int ID =f;
+		for (int i=0;i<3;i++){
+			if (oppositeVertex[border.neighbor(i,f)]==border.getVertexID(f, i))
+				ID=Math.min(ID,border.neighbor(i,f));
+		}
+		return ID==f;
 	}
 	/**
 	 * create the id of an interior tet from his incident vertices
@@ -177,7 +399,7 @@ public class OppositeVertex implements faceOperators{
 	 * @param v3 : vertex id
 	 * @return tet id
 	 */
-	private int buildInteriorID(int v0,int v1,int v2,int v3){
+	public int buildInteriorID(int v0,int v1,int v2,int v3){
 		if (v0==v1||v0==v2||v0==v3||v1==v2||v1==v3||v2==v3) throw new Error("degenerated tet");
 		if (v0<v1&&v0<v2&&v0<v3){
 			if (v1<v2&&v1<v3){
@@ -185,19 +407,22 @@ public class OppositeVertex implements faceOperators{
 				int k=0;
 				id=(int)Math.pow(maxDegree,3)*v0;
 				Integer[] verNeigh = VertexNeighbor(v0).toArray(new Integer[0]);
-				Arrays.sort(verNeigh);
 				for (int j=0;j<verNeigh.length;j++){
 					if (verNeigh[j]==v1){k++;
-						id+=(int)Math.pow(maxDegree,2)*j;
+						id+=(int)Math.pow(verNeigh.length,2)*j;
+						System.out.println(j);
 					}
 					if (verNeigh[j]==v2){k++;
-						id+=maxDegree*j;
+					System.out.println(j);
+						id+=verNeigh.length*j;
 					}
 					if (verNeigh[j]==v3){k++;
+					System.out.println(j);
 						id+=j;
 					}
 				}
 				id+=maxfaces;
+				if (id<0) throw new Error();
 				if (k!=3) throw new Error("vertexNeighbor Problem "+k);
 				return id;
 			}
@@ -224,7 +449,7 @@ public class OppositeVertex implements faceOperators{
 		int i=f%4;
 		Set<Integer> s = new HashSet<>();
 		//TODO optimize this operation
-		for (Integer ver : VertexNeighbor(Vertex(tetid, (i + 1) % 4)))
+		for (Integer ver : VertexNeighbor(tetid, (i + 1) % 4))
 			if (isNeighbor(ver, Vertex(tetid, (i + 2) % 4)))
 				if (isNeighbor(ver, Vertex(tetid, (i + 3) % 4)))
 					if (ver!=i)
@@ -273,24 +498,16 @@ public class OppositeVertex implements faceOperators{
 		}
 	}
 	
-	public int checkNeighbors(){
-		int err =0;
-		for (int i=0;i<border.sizeOfVertices();i++){
-			for (int j=0;j<border.sizeOfVertices();j++){
-				if (isNeighbor(i,j)&&!isNeighbor(j, i))
-					err++;
-			}
-		}
-		return err;
-	}
+
 
 	private int oppositeFace(int tetid, Integer v,int o) {
 		int id=-1;
-		Collection<Integer> col = border.incidentFaces(v);
+		int[] vert = Vertices(tetid);
+		Iterable<Integer> col = border.incidentFaces(v);
 		for (Integer f:col){
 			int k=0;
 			for (int i=0;i<3;i++){
-				if (border.getVertexID(f, i)==Vertex(tetid, (o+1)%4)||border.getVertexID(f, i)==Vertex(tetid, (o+2)%4)||border.getVertexID(f, i)==Vertex(tetid, (o+3)%4))k++;
+				if (border.getVertexID(f, i)==vert[(o+1)%4]||border.getVertexID(f, i)==vert[(o+2)%4]||border.getVertexID(f, i)==vert[(o+3)%4])k++;
 			}
 			if (k==2){
 				id = buildBorderID(f);
@@ -298,32 +515,33 @@ public class OppositeVertex implements faceOperators{
 			}
 		}
 		if (id==-1)
-			id = buildInteriorID(v, Vertex(tetid, (o+1)%4), Vertex(tetid, (o+3)%4), Vertex(tetid, (o+2)%4));//TODO verifier orientation
+			id = buildInteriorID(v, vert[(o+1)%4], vert[(o+3)%4], vert[(o+2)%4]);//TODO verifier orientation
+		int[] vs = Vertices(id);
 		for (int i=0;i<4;i++){
-			if (v==Vertex(id, i))
+			if (v==vs[i])
 				return 4*id+i;
 		}
 		return 4*id;
 	}
 	
-	/**
-	 * Return the set of all tetrahedron ids
-	 * @return the set of all tetrahedron ids
-	 */
-	public Set<Integer> allTetIDS(){
+	public void buildTetIds(){
 		HashSet<Integer> set = new HashSet<>();
-		HashSet<Integer> res = new HashSet<>();
+		HashSet<Integer> s = new HashSet<>();
+		
+		ArrayList<Integer> res = new ArrayList<>();
 		set.add(0);
-		res.add(0);
 		while (!set.isEmpty()){
 			HashSet<Integer> temp = new HashSet<>();
 			for (Integer i : set){
 				for (int o=0;o<4;o++){
 					Integer t;
 					try {
-						t=opposite(4*i+o);
-						if (!res.contains(t/4)){
-							res.add(t/4);temp.add(t/4);
+						t=opposite(4*i+o)/4;
+						if (!s.contains(t)){
+							s.add(t);
+							if (t>maxfaces)
+								res.add(t);
+							temp.add(t);
 						}
 						
 					} catch (BorderFaceException e) {
@@ -332,8 +550,11 @@ public class OppositeVertex implements faceOperators{
 			}
 			set=temp;
 		}
-		return res;
+		tetids = res.toArray(new Integer[0]);
 	}
+	
+//	class IdIterator implements Ite
+	
 	@Override
 	public int maxTetID() {
 		return getnv()*maxDegree*maxDegree*maxDegree;
@@ -371,5 +592,29 @@ public class OppositeVertex implements faceOperators{
 	@Override
 	public boolean borderCorner(int c) {
 		return c>=12*maxTetID();
+	}
+
+	@Override
+	public Iterator<Integer> iterator() {
+		Iterator<Integer> it = new Iterator<Integer>() {
+			int t=0;
+			@Override
+			public boolean hasNext() {
+				return t<maxfaces+tetids.length;
+			}
+
+			@Override
+			public Integer next() {
+				if (t<border.sizeOfFaces())
+					while (!isABorderId(t))t++;
+				if (t==border.sizeOfFaces()) t=maxfaces;
+				if (t>=maxfaces){
+					return tetids[t++-maxfaces];
+				}
+				return t++;
+			}
+			
+		};
+		return it;
 	}
 }

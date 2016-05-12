@@ -3,19 +3,27 @@ package oppositeVertex;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import Jcg.geometry.Pair;
 import POV.pt;
 
-public class cornerBased implements Triangulation{
+public class CornerBasedTriangulation implements Triangulation{
 	pt[] G;
 	int[] C;
 	int[] V;
 	int[] S;
 	int nv,nt;
 	
-	public cornerBased(pt[] pts,int[] c,int nt,int nv){
+	/**
+	 * create the triangulation from a SVR representation
+	 * @param pts : arrays of points
+	 * @param c : array of incidence, 3 entries per triangle
+	 * @param nt : number of triangles
+	 * @param nv : number of vertices
+	 */
+	public CornerBasedTriangulation(pt[] pts,int[] c,int nt,int nv){
 		V=c;
 		G=pts;
 		this.nv=nv;
@@ -28,12 +36,15 @@ public class cornerBased implements Triangulation{
 		checkS();
 	}
 	
+	/**
+	 * create the swing table
+	 */
 	public void createS(){
 		S=new int[V.length];
 		HashMap<Pair<Integer>, Pair<Integer>> map = new HashMap<>(6*nv);
 		for (int i=0;i<(nt);i++){
 			for (int k=0;k<3;k++){
-				Pair<Integer> p = new Pair<>(Math.min(V[3*i+(k)%3], V[3*i+(k+1)%3]),Math.max(V[3*i+(k)%3], V[3*i+(k+1)%3]));
+				Pair<Integer> p = new Pair<>(Math.min(V[3*i+k], V[3*i+(k+1)%3]),Math.max(V[3*i+k], V[3*i+(k+1)%3]));
 				Pair<Integer> p0 = map.get(p);
 				if (p0==null) map.put(p, new Pair<>(3*i+k,-1));
 				else {
@@ -48,20 +59,23 @@ public class cornerBased implements Triangulation{
 				Pair<Integer> p = new Pair<>(Math.min(V[3*i+(k)%3], V[3*i+(k+1)%3]),Math.max(V[3*i+(k)%3], V[3*i+(k+1)%3]));
 				Pair<Integer> p0 = map.get(p);
 				
-//				if (V[p0.getFirst()]!=V[3*(p0.getSecond()/3)+(p0.getSecond()+1)%3]) throw new Error(""+i);
+				if (V[p0.getFirst()]!=V[3*(p0.getSecond()/3)+(p0.getSecond()+1)%3]) throw new Error(""+i);
 				S[p0.getFirst()]=3*(p0.getSecond()/3)+(p0.getSecond()+1)%3;
-//				if (V[S[p0.getFirst()]]!=V[p0.getFirst()]) throw new Error(""+i);
+				if (V[S[p0.getFirst()]]!=V[p0.getFirst()]) throw new Error(""+i);
 
-//				if (V[p0.getSecond()]!=V[3*(p0.getFirst()/3)+(p0.getFirst()+1)%3]) throw new Error(""+i);
+				if (V[p0.getSecond()]!=V[3*(p0.getFirst()/3)+(p0.getFirst()+1)%3]) throw new Error(""+i);
 				S[p0.getSecond()]=3*(p0.getFirst()/3)+(p0.getFirst()+1)%3;
-//				if (V[S[p0.getSecond()]]!=V[p0.getSecond()]) throw new Error(""+i);
+				if (V[S[p0.getSecond()]]!=V[p0.getSecond()]) throw new Error(""+i);
 			}
 		}
 //		for (int i=0;i<3*nt;i++)System.out.println(S[i]+"   "+V[i]);.
 //		System.out.println(map.size()+"   "+nt);
-		for (int i=0;i<3*nt;i++)if (V[i]!=V[S[i]]) throw new Error(""+i);
+		for (int i=0;i<3*nt;i++)if (V[i]!=V[S[i]]) throw new Error(""+i+"  "+S[i]);
 	}
 	
+	/**
+	 * check S table correctness
+	 */
 	public void checkS(){
 		Set<Integer> c = new HashSet<>();
 		Set<Integer> v = new HashSet<>();
@@ -82,39 +96,52 @@ public class cornerBased implements Triangulation{
 			v.remove(ver);
 		}
 	}
-	
+	/**
+	 * return face id of face containing a vertex (id)
+	 */
 	@Override
-	public Collection<Integer> incidentFaces(int v) {
-		Set<Integer> s= new HashSet<>();
-//		for (int i=0;i<3*nt;i++){
-//			if (C[i]==v)
-//				s.add(i/3);
-//		}
-		int d=2;
-		int f=C[v];
-//		if (C[f]!=v)f++;
-//		if (C[f]!=v)f++;
-		while (d!=0){
-			int l=s.size();
-			s.add(f/3);
-			f=S[f];
-			d=s.size()-l;
-		}
-//		System.out.println(s);
-		if (s.size()<3) throw new Error("invalid triangulation");
-		return s;
+	public Iterable<Integer> incidentFaces(int v) {
+		int f0=C[v];
+		Iterator<Integer> it = new Iterator<Integer>() {
+			int face=f0;
+			boolean first=true;
+			@Override
+			public boolean hasNext() {
+				// TODO Auto-generated method stub
+				return first||face!=f0;
+			}
+			@Override
+			public Integer next() {
+				int temp = face;
+				first=false;
+				face=S[face];
+				return temp/3;
+			}
+		};
+		return new Iterable<Integer>() {
+			@Override
+			public Iterator<Integer> iterator() {
+				return it;
+			}
+		};
 	}
-
+	/**
+	 * return the number of vertices
+	 */
 	@Override
 	public int sizeOfVertices() {
 		return nv;
 	}
-
+	/**
+	 * return the number of triangles
+	 */
 	@Override
 	public int sizeOfFaces() {
 		return nt;
 	}
-
+	/**
+	 * remove all vertices from the set s, on the ather side of the plane A,B,C
+	 */
 	@Override
 	public Set<Integer> removeSide(int sideReference, Set<Integer> s, int Ai, int Bi, int Ci,
 			boolean removeOppositeSide) {
@@ -146,6 +173,11 @@ public class cornerBased implements Triangulation{
 	@Override
 	public pt G(int i) {
 		return G[i];
+	}
+
+	@Override
+	public int storageCost() {
+		return 13*nv;
 	}
 
 }

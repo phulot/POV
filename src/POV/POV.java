@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
@@ -53,6 +54,10 @@ public class POV implements faceOperators{
 		@param display interface that extends PApplet 
 	*/
 	public POV() {}
+	
+	public int storageCost(){
+		return 8*nt;
+	}
 	
 	void refreshIntegers(){
 		maxnv=G.length;
@@ -1085,10 +1090,20 @@ public class POV implements faceOperators{
 	}
 
 	@Override
-	public Collection<Integer> allTetIDS() {
-		Set<Integer> set = new HashSet<>();
-		for (int i=0;i<nt;i++)set.add(i);
-		return set;
+	public Iterator<Integer> iterator() {
+		Iterator<Integer> it = new Iterator<Integer>() {
+			 int t=0;
+			@Override
+			public boolean hasNext() {
+				return t<nt;
+			}
+
+			@Override
+			public Integer next() {
+				return t++;
+			}
+		};
+		return it;
 	}
 
 	@Override

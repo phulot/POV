@@ -1,6 +1,5 @@
 package oppositeVertex;
 
-import java.util.Collection;
 import java.util.Set;
 
 import POV.pt;
@@ -11,7 +10,7 @@ interface Triangulation {
 	 * @param vertexid : vertex id
 	 * @return collection of face ids
 	 */
-	public Collection<Integer> incidentFaces(int vertexid);
+	public Iterable<Integer> incidentFaces(int vertexid);
 	
 	/**
 	 * return the number of vertices
@@ -56,5 +55,7 @@ interface Triangulation {
 	public int neighbor(int i, int faceID);
 	
 	public pt G(int i);
+	
+	public int storageCost();
 	
 }

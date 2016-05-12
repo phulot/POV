@@ -31,17 +31,19 @@ public class OppositeVertexBuilder {
 			p.G[i].y= (float)(double)pt.y;
 			p.G[i].z= (float)(double)pt.z;
 		}
-		Set<Integer> IDS = op.allTetIDS();
-		System.out.println(IDS.size());
-		Integer[] IDStab = IDS.toArray(new Integer[0]);
+		op.buildTetIds();
+//		Set<Integer> IDS = op.allTetIDS();
+//		System.out.println(IDS.size());
+//		Integer[] IDStab = IDS.toArray(new Integer[0]);
 		HashMap<Integer, Integer> map = new HashMap<Integer,Integer>();
-		for (int i=0;i<IDStab.length;i++){
-			map.put(IDStab[i], i);
+		int kk=0;
+		for (int i:op){
+			map.put(i, kk++);
 		}
-		p.nt = IDS.size();
+		p.nt = kk-1;
 		p.V = new Integer[4*p.nt];
 		p.O = new int[4*p.nt];
-		for (Integer id:IDS){
+		for (Integer id:op){
 			for (int k=0;k<4;k++){
 				p.V[4*map.get(id)+k]=op.Vertex(id, k);
 				Integer o;
@@ -58,37 +60,40 @@ public class OppositeVertexBuilder {
 	}
 	
 	public static OppositeVertex loadFromPOV(POV p){
+		int g = p.computegenus();
+		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
-		op.interiorEdges = new HashMap<Integer,Set<Integer>>();
-		op.oppositeVertex = new int[4*p.nv];
+		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
+		op.oppositeVertex = new int[nf];
 //		ArrayList<int[]> neigh = new ArrayList<>();
-		int[] c = new int[3*p.nt];
+		int[] V = new int[3*nf];
 		int l = 0;
+		p.createOtable();
 		for (int i=0;i<p.nt;i++){
 			for (int k=0;k<4;k++){
 				try {
 					p.O(4*i+k);
 				} catch (BorderFaceException e) {
 					if (k%2==0){
-						c[3*l] = p.V[4*i+((k+1)%4)];
-						c[3*l+1] = p.V[4*i+((k+2)%4)];
-						c[3*l+2] = p.V[4*i+((k+3)%4)];
+						V[3*l] = p.V[4*i+((k+1)%4)];
+						V[3*l+1] = p.V[4*i+((k+2)%4)];
+						V[3*l+2] = p.V[4*i+((k+3)%4)];
 						op.oppositeVertex[l]=p.V[4*i+k];
 						l++;
 					}
 					else{
-						c[3*l] = p.V[4*i+((k+1)%4)];
-						c[3*l+2] = p.V[4*i+((k+2)%4)];
-						c[3*l+1] = p.V[4*i+((k+3)%4)];
+						V[3*l] = p.V[4*i+((k+1)%4)];
+						V[3*l+2] = p.V[4*i+((k+2)%4)];
+						V[3*l+1] = p.V[4*i+((k+3)%4)];
 						op.oppositeVertex[l]=p.V[4*i+k];
 						l++;
 					}
 				}
 			}
 		}
-		op.border = new cornerBased(p.G, c,l , p.nv);
+		System.out.println(nf==l);
+		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
 //		op.border = new JcgTriangulation( TriangulationDS_2(points, neigh.toArray(new int[0][0])));
-		op.buildOppositeFaces();
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);
 			boolean b =true;
@@ -115,6 +120,9 @@ public class OppositeVertexBuilder {
 				op.interiorEdges.put(p.v(p.n(i)), s0);
 			}
 		}
+		op.buildOppositeFaces();
+//		op.buildTetIds();
+		System.out.println("OppositeVertex done");
 		return op;
 	}
 	
@@ -154,90 +162,4 @@ public class OppositeVertexBuilder {
 			e.printStackTrace();
 		}
 	}
-	
-	 public static TriangulationDS_2<Point_3> TriangulationDS_2(Point_3[] points, int[][] neighbors) {
-	    	System.out.print("Jcg - Creating triangulation DS... ");
-			long startTime=System.nanoTime(), endTime; // for evaluating time performances
-	    	TriangulationDS_2 t = new TriangulationDS_2<>();
-			
-	    	if(points==null) 
-	    		throw new Error("error: null points");
-	    	else if(neighbors==null || points[0]==null) 
-	    		throw new Error("error: null vertices or null faces"); 	
-	    	
-	    	t.faces=new ArrayList<TriangulationDSFace_2<Point_3>>();
-	    	t.vertices=new ArrayList<TriangulationDSVertex_2<Point_3>>();    
-	    	
-	    	for(int i=0;i<points.length;i++) {
-	    		if(points[i]==null) throw new Error("null vertex error");
-	    		TriangulationDSVertex_2<Point_3> v=new TriangulationDSVertex_2<Point_3>(points[i]);
-	    		t.vertices.add(v);
-	    	}
-	    	
-	    	// first pair (the key) represents the edges of the triangulation
-	    	// second pair (the associated value) represents the two neighboring faces (sharing an edge)
-	    	HashMap<Pair<Integer>, Pair<Integer>> edges=new HashMap<Pair<Integer>, Pair<Integer>>(t.vertices.size()*4, (float)0.75);
-	    	    	
-	    	for(int i=0;i<neighbors.length;i++) {
-	    		int i0=neighbors[i][0], i1=neighbors[i][1], i2=neighbors[i][2];
-	    		t.createFace((TriangulationDSVertex_2<Point_3>)t.vertices.get(i0), (TriangulationDSVertex_2<Point_3>)t.vertices.get(i1), (TriangulationDSVertex_2<Point_3>)t.vertices.get(i2), null, null, null);
-	    		
-	    		for(int j=0;j<3;j++) {
-	    			int index1=neighbors[i][(j+1)%3];
-	    			int index2=neighbors[i][(j+2)%3];
-	    			Pair<Integer> edge;
-	    			if(index1<=index2) edge=new Pair<Integer>(index1, index2);
-	    			else edge=new Pair<Integer>(index2, index1);
-	    			
-	    			if(edges.containsKey(edge)==false) {
-	    				Pair<Integer> face;
-	    				if(index1<=index2) face=new Pair<Integer>(i, -1);
-	    				else face=new Pair<Integer>(-1, i);
-	    				edges.put(edge, face);
-	    			}
-	    			else {
-	    				Pair<Integer> face=edges.get(edge);
-	    				if(face.getFirst()==-1) face.setFirst(i);
-	    				else face.setSecond(i);
-	    			}
-	    		}
-	    	}
-	    	
-	    	//System.out.println("setting neighboring faces");
-	    	for(int i=0;i<neighbors.length;i++) {
-	    		TriangulationDSFace_2<Point_3> currentFace=(TriangulationDSFace_2<Point_3>) t.faces.get(i);
-	    		for(int j=0;j<3;j++) {    		
-	    			
-	    			// setting vertex adjacent face
-	    			TriangulationDSVertex_2<Point_3> v=(TriangulationDSVertex_2<Point_3>) t.vertices.get(neighbors[i][j]);
-	    			v.setFace((TriangulationDSFace_2<Point_3>) t.faces.get(i));
-	    			
-	    			int index1=neighbors[i][(j+1)%3];
-	    			int index2=neighbors[i][(j+2)%3];
-	    			Pair<Integer> edge;
-	    			if(index1<=index2) edge=new Pair<Integer>(index1, index2);
-	    			else edge=new Pair<Integer>(index2, index1);
-	    			
-	    			if(edges.containsKey(edge)==false) 
-	    				throw new Error("error: edge not found");
-	    			else {
-	    				Pair<Integer> face=edges.get(edge);
-	    				if(face.getFirst()==-1 && face.getSecond()==-1)
-	    					throw new Error("error: wrong adjacent faces");
-	    				if(face.getFirst()==-1 || face.getSecond()==-1); // boundary edge
-	    				else {
-	    					int neighborFace=face.getSecond();
-	    					if (neighborFace==i) neighborFace=face.getFirst();
-	    					if(neighborFace<0 || neighborFace>=t.faces.size())
-	    						throw new Error("error neighbor face index");
-	    					currentFace.setNeighbor(j, (TriangulationDSFace_2<Point_3>) t.faces.get(neighborFace));
-	    				}
-	    			}
-	    		}
-	    	}
-	    	endTime=System.nanoTime(); 
-	    	double duration=(double)(endTime-startTime)/(double)1000000000.;
-	    	System.out.println("done (time: "+duration+" seconds)");
-			return t;
-	    }
 }

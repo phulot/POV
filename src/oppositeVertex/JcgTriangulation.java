@@ -116,6 +116,13 @@ class JcgTriangulation implements Triangulation{
 	public int sizeOfFaces() {
 		return border.sizeOfFaces();
 	}
+
+
+	@Override
+	public int storageCost() {
+		// TODO Auto-generated method stub
+		return 13*border.sizeOfVertices()-24;
+	}
 	
 	
 }
