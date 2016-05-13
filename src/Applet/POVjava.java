@@ -30,8 +30,8 @@ public class POVjava extends PApplet {
 	String meshName="";
 	pt Viewer = pt.P();
 	pt F = pt.P(0,0,0);  // focus point:  the camera is looking at it (moved when 'f or 'F' are pressed
-	pt Of=pt.P(100,100,0), Ob=pt.P(110,110,0); // red point controlled by the user via mouseDrag : used for inserting vertices ...
-	pt Vf=pt.P(0,0,0), Vb=pt.P(0,0,0);
+	pt Of = pt.P(100,100,0), Ob=pt.P(110,110,0); // red point controlled by the user via mouseDrag : used for inserting vertices ...
+	pt Vf = pt.P(0,0,0), Vb=pt.P(0,0,0);
 	public int pp=1; // index of picked vertex
 	subSurface Sub;
 //	subsurfaceDisplay SubDisplay;
@@ -53,9 +53,8 @@ public class POVjava extends PApplet {
 	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
 //	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
 	  POV pov = povBuilder.loadpov("data/"+meshName);
-//	  Mesh=new cornerBasedDS(pov);
-	  Mesh = new cornerBasedDS(OppositeVertexBuilder.loadFromPOV(pov));
-//	  Mesh = new cornerBasedDS(pov);
+	  Mesh = new cornerBasedDS(pov);
+//	  Mesh = new cornerBasedDS(OppositeVertexBuilder.loadFromPOV(pov));
 //	  Mesh = povBuilder.createRandomMesh(1000, 1);
 	//  Mesh.loadsma("data/"+meshName, 5f);
 	//  Mesh.checkMesh();
@@ -70,6 +69,7 @@ public class POVjava extends PApplet {
 	  for (int i=0;i<Mesh.DS.getnv();i++){
 	    p=pt.A(p,Mesh.DS.G(i));
 	  }  
+	  F=p.div(Mesh.DS.getnv());
 	  //Mesh.loadPV("data/pts3"); 
 	  //Mesh.initiManual();
 	  }
@@ -107,10 +107,11 @@ public class POVjava extends PApplet {
 //			fill(red, 100);
 //			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
 		}
+		fill(blue);
 		meshDisplay.drawSelectedCorner();
 
 		if (showWalls) {
-			stroke(black);strokeWeight(2);fill(yellow);
+			stroke(black);strokeWeight(2);fill(yellow,10);
 			
 //			stroke(black);strokeWeight(3);noFill();
 			// Mesh.showWall(); strokeWeight(6);
@@ -165,6 +166,7 @@ public class POVjava extends PApplet {
 	  if(key=='n') meshDisplay.n();
 	  if(key=='o') meshDisplay.o();
 	  if(key=='s') meshDisplay.s();
+	  if(key == 'r') meshDisplay.currentCorner=(int)(Math.random()*Mesh.DS.maxTetID()*12);
 //	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
 //	  if(key=='e') SubDisplay.edgeContraction();
 //	  if(key=='m') SubDisplay.markCorner();

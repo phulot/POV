@@ -154,12 +154,7 @@ public class cornerBasedDS {
 			int rc = relativeCornerInTetra(c);
 			return 12 * tetraFromCorner(c) + swing[rc];
 		} else {
-			int v;
-			try {
-				v = v(n(o(c)));
-			} catch (BorderCornerException e) {
-				v = v(n(n(c)));
-			}
+			int v = v(n(n(c)));
 			boolean b = true;
 			int temp;
 			try {

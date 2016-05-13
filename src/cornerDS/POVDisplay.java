@@ -61,7 +61,6 @@ public class POVDisplay {
 			ver.add(1.f / 3f, v1);
 			vec v2 = vec.V(id, pov.DS.G(pov.v(pov.n(pov.n(c)))));
 			cor.add(vec.V(1.f / 3f, vec.V(v1, v2)));
-			display.fill(display.blue, 300);
 			display.noStroke();
 			display.show(pov.DS.G(pov.v(c)), ver, cor);
 			ver = new pt(id);

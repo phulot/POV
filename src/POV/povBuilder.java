@@ -125,6 +125,7 @@ public class povBuilder {
 			System.out.println("done");
 			return pov;
 		} catch (Exception e){
+			e.printStackTrace();
 			return loadoldpov(fn,mult);
 		}
 	};
