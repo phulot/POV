@@ -7,7 +7,7 @@ import POV.*;
 public class Main {
 
 	public static void main(String[] args) {
-		POV p = povBuilder.loadele("data/tahol", 10f);
+		POV p = povBuilder.loadpov("data/pts4");
 		double e = 0;
 		for (int t:p){
 			for (int i=0;i<12;i++){
@@ -32,6 +32,12 @@ public class Main {
 			if (i<op.maxfaces)k++;
 		}
 		System.out.println("number of ext tets : "+k);
+		k=0;
+		for (Integer v =0;v<op.border.sizeOfVertices();v++){
+			for (Integer t:op.border.incidentFaces(v))
+				k++;
+		}
+		System.out.println(k/op.border.sizeOfVertices());
 //		for (Integer s : op.oppositeFaces.keySet()){
 //			System.out.println(op.oppositeFaces.get(s));
 //		}

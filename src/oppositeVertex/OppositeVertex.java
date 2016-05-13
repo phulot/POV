@@ -17,11 +17,19 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	int[] oppositeVertex;
 	HashMap<Integer,Set<Integer>> oppositeFaces;
 	Tet [] tetids;
-	static int maxDegree = 50;
 	int maxTet;
-	static int maxfaces = 20000;
+	int maxfaces = 20000;
 	
-	
+	public OppositeVertex(){};
+	public OppositeVertex(Triangulation border, HashMap<Integer, Set<Integer>> interiorEdges, int[] oppositeVertex,
+			int maxTet) {
+		super();
+		this.border = border;
+		this.interiorEdges = interiorEdges;
+		this.oppositeVertex = oppositeVertex;
+		this.maxTet = maxTet;
+	}
+
 	public int storageCost(){
 //		System.out.println(hashMapSize(interiorEdges));
 //		return 2*border.sizeOfFaces()+oppositeVertex.length+interiorEdges.size();
@@ -37,6 +45,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 				if (oppositeVertex[face]==border.neighbor(0, i)||oppositeVertex[face]==border.neighbor(1, i)||oppositeVertex[face]==border.neighbor(2, i))
 					{b=false;break;}
 			}
+			if (!b) System.out.println("f: "+ i);
 			if (b){
 				Set<Integer> s = oppositeFaces.get(oppositeVertex[i]);
 				if (s==null){s=new HashSet<Integer>();oppositeFaces.put(oppositeVertex[i], s);}
@@ -387,7 +396,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 			@Override
 			public Integer next() {
 				if (t<border.sizeOfFaces())
-					while (!isABorderTet(t))t++;
+					while (t<border.sizeOfFaces()&&!isABorderTet(t))t++;
 				if (t==border.sizeOfFaces()) t=maxfaces;
 				if (t>=maxfaces){
 					return t++;

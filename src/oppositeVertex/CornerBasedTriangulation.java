@@ -80,7 +80,6 @@ public class CornerBasedTriangulation implements Triangulation{
 		Set<Integer> v = new HashSet<>();
 		for (int i=0;i<3*nt;i++)c.add(i);
 		for (int i=0;i<nv;i++)v.add(i);
-		boolean b=true;
 		while (!c.isEmpty()){
 			int cor = c.iterator().next();
 			int ver=V[cor];
