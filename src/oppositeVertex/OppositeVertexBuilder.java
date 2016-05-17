@@ -11,11 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import POV.*;
-import Jcg.geometry.Pair;
-import Jcg.geometry.Point_3;
-import Jcg.triangulations2D.TriangulationDSFace_2;
-import Jcg.triangulations2D.TriangulationDSVertex_2;
-import Jcg.triangulations2D.TriangulationDS_2;
+import oppositeVertex.OppositeVertex.Face;
+import oppositeVertex.OppositeVertex.Tet;
 
 public class OppositeVertexBuilder {
 	
@@ -23,18 +20,9 @@ public class OppositeVertexBuilder {
 		POV p = new POV();
 		p.nv=op.border.sizeOfVertices();
 		p.G = new pt[p.nv];
-		JcgTriangulation t = (JcgTriangulation) op.border;
-		for (int i=0;i<op.border.sizeOfVertices();i++){
-			Point_3 pt = t.border.vertices.get(i).getPoint();
-			p.G[i] = new pt();
-			p.G[i].x= (float)(double)pt.x;
-			p.G[i].y= (float)(double)pt.y;
-			p.G[i].z= (float)(double)pt.z;
-		}
+		CornerBasedTriangulation t = (CornerBasedTriangulation) op.border;
+		p.G = t.G;
 		op.buildTetIds();
-//		Set<Integer> IDS = op.allTetIDS();
-//		System.out.println(IDS.size());
-//		Integer[] IDStab = IDS.toArray(new Integer[0]);
 		HashMap<Integer, Integer> map = new HashMap<Integer,Integer>();
 		int kk=0;
 		for (int i:op){
@@ -45,11 +33,12 @@ public class OppositeVertexBuilder {
 		p.O = new int[4*p.nt];
 		for (Integer id:op){
 			for (int k=0;k<4;k++){
-				p.V[4*map.get(id)+k]=op.Vertex(id, k);
-				Integer o;
+				Tet tet = op.new Tet().fromInt(id);
+				p.V[4*map.get(id)+k]=tet.Vertex(k);
+				Face o;
 				try {
-					o=op.opposite(4*id+k);
-						p.O[4*map.get(id)+k]=4*map.get(o/4)+(o%4);
+					o=op.opposite(op.new Face(tet,k));
+						p.O[4*map.get(id)+k]=4*map.get(o.t.toInt())+(o.relf);
 				} catch (BorderFaceException e) {
 					p.O[4*map.get(id)+k]=4*map.get(id)+k;
 				}
@@ -61,14 +50,15 @@ public class OppositeVertexBuilder {
 	
 	public static OppositeVertex loadFromPOV(POV p){
 		int g = p.computegenus();
+		System.out.println(g);
 		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
 		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
 		op.oppositeVertex = new int[nf];
-//		ArrayList<int[]> neigh = new ArrayList<>();
+		op.maxfaces=(nf/10000+1)*10000;
+		op.maxTet=p.nt;
 		int[] V = new int[3*nf];
 		int l = 0;
-		p.createOtable();
 		for (int i=0;i<p.nt;i++){
 			for (int k=0;k<4;k++){
 				try {
@@ -91,9 +81,8 @@ public class OppositeVertexBuilder {
 				}
 			}
 		}
-		System.out.println(nf==l);
+		System.out.println("no interior vertices "+(nf==l));
 		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
-//		op.border = new JcgTriangulation( TriangulationDS_2(points, neigh.toArray(new int[0][0])));
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);
 			boolean b =true;
@@ -121,7 +110,8 @@ public class OppositeVertexBuilder {
 			}
 		}
 		op.buildOppositeFaces();
-//		op.buildTetIds();
+		System.out.println("oppositeFaces done");
+		op.buildTetIds();
 		System.out.println("OppositeVertex done");
 		return op;
 	}

@@ -18,6 +18,7 @@ public class cornerBasedDS {
 	public faceOperators DS;
 
 	public cornerBasedDS(faceOperators dS) {
+		System.out.println(dS.getClass());
 		DS = dS;
 	}
 
@@ -140,7 +141,6 @@ public class cornerBasedDS {
 						throw new BorderCornerException(3*f+12*DS.maxTetID()+2);
 					throw new BorderCornerException(3*f+12*DS.maxTetID()+1);
 			}
-			
 		}
 	}
 
@@ -154,12 +154,7 @@ public class cornerBasedDS {
 			int rc = relativeCornerInTetra(c);
 			return 12 * tetraFromCorner(c) + swing[rc];
 		} else {
-			int v;
-			try {
-				v = v(n(o(c)));
-			} catch (BorderCornerException e) {
-				v = v(n(n(c)));
-			}
+			int v = v(n(n(c)));
 			boolean b = true;
 			int temp;
 			try {
@@ -361,12 +356,35 @@ public class cornerBasedDS {
 	 */
 	public int idOfCornerClosestTo(pt M) {
 		int temp=0;
-		Iterator<Integer> it = DS.iterator();
-		while (it.hasNext()){
-			int i= it.next();
-			if (pt.d(M, DS.G(DS.V(i))) < pt.d(M, DS.G(DS.V(temp))))
-				temp = i;
-		}
+		for (Integer i : DS)
+			for (int k=0;k<4;k++)
+				if (pt.d(M, DS.G(DS.V(4*i+k))) < pt.d(M, DS.G(DS.V(temp)))){
+					temp = 4*i+k;
+				}
 		return 12*(temp/4)+rel[temp%4];
+	}
+	
+	public Set<Integer> traversal(){
+		HashSet<Integer> set = new HashSet<>();
+		HashSet<Integer> s = new HashSet<>();
+		set.add(0);
+		while (!set.isEmpty()){
+			HashSet<Integer> temp = new HashSet<>();
+			for (Integer i : set){
+				for (int o=0;o<4;o++){
+					Integer t;
+					try {
+						t=tetraFromFace(DS.O(4*i+o));
+						if (!s.contains(t)){
+							s.add(t);
+							temp.add(t);
+						}
+					} catch (BorderFaceException e) {
+					}
+				}
+			}
+			set=temp;
+		}
+		return s;
 	}
 }

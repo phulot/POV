@@ -1,6 +1,5 @@
 package oppositeVertex;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,7 +29,7 @@ public class CornerBasedTriangulation implements Triangulation{
 		this.nt=nt;
 		C=new int[nv];
 		for (int i=0;i<3*nt;i++){
-			C[V[i]]=i;
+			C[V[i]]=i+1;
 		}
 		createS();
 		checkS();
@@ -44,9 +43,10 @@ public class CornerBasedTriangulation implements Triangulation{
 		HashMap<Pair<Integer>, Pair<Integer>> map = new HashMap<>(6*nv);
 		for (int i=0;i<(nt);i++){
 			for (int k=0;k<3;k++){
-				Pair<Integer> p = new Pair<>(Math.min(V[3*i+k], V[3*i+(k+1)%3]),Math.max(V[3*i+k], V[3*i+(k+1)%3]));
+				Pair<Integer> p = new Pair<>(V[3*i+(k+1)%3], V[3*i+k]);
+				Pair<Integer> p1 = new Pair<>(V[3*i+k], V[3*i+(k+1)%3]);
 				Pair<Integer> p0 = map.get(p);
-				if (p0==null) map.put(p, new Pair<>(3*i+k,-1));
+				if (p0==null) map.put(p1, new Pair<>(3*i+k,-1));
 				else {
 					assert p0.getSecond()==-1;
 					p0.setSecond(3*i+k);
@@ -56,8 +56,10 @@ public class CornerBasedTriangulation implements Triangulation{
 		}
 		for (int i=0;i<(nt);i++){
 			for (int k=0;k<3;k++){
-				Pair<Integer> p = new Pair<>(Math.min(V[3*i+(k)%3], V[3*i+(k+1)%3]),Math.max(V[3*i+(k)%3], V[3*i+(k+1)%3]));
+				Pair<Integer> p = new Pair<>(V[3*i+(k+1)%3], V[3*i+k]);
+				Pair<Integer> p1 = new Pair<>(V[3*i+k], V[3*i+(k+1)%3]);
 				Pair<Integer> p0 = map.get(p);
+				if (p0==null) p0 = map.get(p1);
 				
 				if (V[p0.getFirst()]!=V[3*(p0.getSecond()/3)+(p0.getSecond()+1)%3]) throw new Error(""+i);
 				S[p0.getFirst()]=3*(p0.getSecond()/3)+(p0.getSecond()+1)%3;
@@ -79,9 +81,7 @@ public class CornerBasedTriangulation implements Triangulation{
 	public void checkS(){
 		Set<Integer> c = new HashSet<>();
 		Set<Integer> v = new HashSet<>();
-		for (int i=0;i<3*nt;i++)c.add(i);
 		for (int i=0;i<nv;i++)v.add(i);
-		boolean b=true;
 		while (!c.isEmpty()){
 			int cor = c.iterator().next();
 			int ver=V[cor];
@@ -101,14 +101,14 @@ public class CornerBasedTriangulation implements Triangulation{
 	 */
 	@Override
 	public Iterable<Integer> incidentFaces(int v) {
-		int f0=C[v];
+		int f0=C[v]-1;
 		Iterator<Integer> it = new Iterator<Integer>() {
 			int face=f0;
 			boolean first=true;
 			@Override
 			public boolean hasNext() {
 				// TODO Auto-generated method stub
-				return first||face!=f0;
+				return (f0!=-1)&&(first||face!=f0);
 			}
 			@Override
 			public Integer next() {
@@ -177,7 +177,7 @@ public class CornerBasedTriangulation implements Triangulation{
 
 	@Override
 	public int storageCost() {
-		return 13*nv;
+		return 13*nt/2;
 	}
 
 }
