@@ -1,7 +1,7 @@
 package POV;
 
 public class BorderFaceException extends Exception{
-	Number o;
+	public Number o;
 	private static final long serialVersionUID = 1L;
 
 	public BorderFaceException(Number Face) {

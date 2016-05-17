@@ -1,6 +1,8 @@
 package Applet;
 
 import java.nio.*;
+import java.util.Iterator;
+
 import processing.core.PMatrix3D;
 import processing.event.MouseEvent;
 import processing.opengl.PGL;
@@ -8,6 +10,7 @@ import processing.opengl.PGraphics3D;
 import subsurface.*;
 import POV.*;
 import cornerDS.cornerBasedDS;
+import oppositeVertex.OppositeVertex;
 import oppositeVertex.OppositeVertexBuilder;
 import subsurface.subsurfaceDisplay;
 
@@ -38,6 +41,8 @@ public class POVjava extends PApplet {
 	cornerBasedDS Mesh; // tet mesh
 //	POV Mesh;
 	cornerDS.POVDisplay meshDisplay;
+	double tim=0;
+	int k=0;
 //	POVDisplay meshDisplay;
 
 	public void settings() {
@@ -48,20 +53,13 @@ public class POVjava extends PApplet {
 	public void setup() {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
-	  //Mesh.declare();
-	  meshName = "hinge";
-	//  Mesh.loadpov("data/cilindre");  // loads saved model from file
-//	  Mesh = povBuilder.loadpov("data/"+meshName,1f);  // loads saved model from file
-	  POV pov = povBuilder.loadpov("data/"+meshName);
-	  Mesh = new cornerBasedDS(pov);
-//	  Mesh = new cornerBasedDS(OppositeVertexBuilder.loadFromPOV(pov));
-//	  Mesh = povBuilder.createRandomMesh(1000, 1);
-	//  Mesh.loadsma("data/"+meshName, 5f);
-	//  Mesh.checkMesh();
-	//  Mesh.orientMesh();
-	//  Mesh.savepov(meshName);
-//	  Mesh=pov.createRandomMesh(5000,1,this);
-//	  meshDisplay = new POVDisplay(this, Mesh); 
+	  meshName = "tahol";
+	  POV pov = povBuilder.loadpov("data/"+meshName,0.05f);
+	  OppositeVertex op = OppositeVertexBuilder.loadFromPOV(pov);
+//	  Utils.removeOpFromPov(op, pov);
+//	  System.out.println(pov.nt);
+//	  Mesh = new cornerBasedDS(pov);
+	  Mesh = new cornerBasedDS(op);
 	  meshDisplay = new cornerDS.POVDisplay(this, Mesh);
 //	  Sub = new subSurface(Mesh,meshName);
 //	  SubDisplay = new subsurfaceDisplay(this,Sub);
@@ -69,6 +67,9 @@ public class POVjava extends PApplet {
 	  for (int i=0;i<Mesh.DS.getnv();i++){
 	    p=pt.A(p,Mesh.DS.G(i));
 	  }  
+//	  for (int i=0;i<pov.nt;i++)
+//		  for (int j=0;j<4;j++)
+//			  p=pt.A(p,Mesh.DS.G(pov.V[4*i+j]));
 	  F=p.div(Mesh.DS.getnv());
 	  //Mesh.loadPV("data/pts3"); 
 	  //Mesh.initiManual();
@@ -103,20 +104,21 @@ public class POVjava extends PApplet {
 		// PtQ.setToL(P,s,Q); // compute interpolated control polygon
 		if (showVertices) {
 			fill(blue, 100);
-			meshDisplay.drawBalls(.25f); // draw semitransluent green balls around the vertices
+			meshDisplay.drawBalls(10f); // draw semitransluent green balls around the vertices
 //			fill(red, 100);
 //			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
 		}
 		fill(blue);
 		meshDisplay.drawSelectedCorner();
-
 		if (showWalls) {
-			stroke(black);strokeWeight(2);fill(yellow,10);
+			stroke(black);strokeWeight(1);noFill();//fill(yellow,10);
+			tim += meshDisplay.showWall();k++;
+//			stroke(black);strokeWeight(2);fill(red);
+//			tim += meshDisplay0.showWall();k++;
 			
 //			stroke(black);strokeWeight(3);noFill();
 			// Mesh.showWall(); strokeWeight(6);
 //			SubDisplay.showWall();
-			meshDisplay.showWall();
 //			fill(yellow, 300);strokeWeight(10);noStroke();
 //			SubDisplay.showMarkedWall();
 //			SubDisplay.showWallm();
@@ -142,7 +144,7 @@ public class POVjava extends PApplet {
 	  popMatrix(); // done with 3D drawing. Restore front view for writing text on canvas
 
 	  if(scribeText) {fill(black); displayHeader();} // dispalys header on canvas, including my face
-	  if(scribeText && !filming) displayFooter(); // shows menu at bottom, only if not filming
+	  if(scribeText && !filming) displayFooter(tim/(double)k); // shows menu at bottom, only if not filming
 	  if (animating) { t+=PI/180/2; if(t>=TWO_PI) t=0; s=(cos(t)+1.f)/2; } // periodic change of time 
 	  if(filming && (animating || change)) saveFrame("FRAMES/F"+nf(frameCounter++,4)+".tif");  // save next frame to make a movie
 	  change=false; // to avoid capturing frames when nothing happens (change is set uppn action)
@@ -166,8 +168,8 @@ public class POVjava extends PApplet {
 	  if(key=='n') meshDisplay.n();
 	  if(key=='o') meshDisplay.o();
 	  if(key=='s') meshDisplay.s();
-	  if(key == 'r') meshDisplay.currentCorner=(int)(Math.random()*Mesh.DS.maxTetID()*12);
-//	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
+	  if(key == 'r') {Iterator<Integer> it = Mesh.DS.iterator();int r = (int)(Math.random()*Mesh.DS.maxTetID());for (int i=0;i<r;i++)if (it.hasNext())meshDisplay.currentCorner=it.next()*12;F=Mesh.DS.G(Mesh.v(meshDisplay.currentCorner));}
+	  if(key=='P') meshDisplay.currentCorner=Mesh.idOfCornerClosestTo(F);
 //	  if(key=='e') SubDisplay.edgeContraction();
 //	  if(key=='m') SubDisplay.markCorner();
 //	  if(key=='M') SubDisplay.markNeighbours();
@@ -229,9 +231,10 @@ public class POVjava extends PApplet {
 	    scribeHeader(title,0); scribeHeaderRight(name); 
 	    fill(white); image(myFace, width-myFace.width/4,25,myFace.width/4,myFace.height/4); 
 	    }
-	void displayFooter() { // Displays help text at the bottom
+	void displayFooter(double t) { // Displays help text at the bottom
+		scribeFooter("display time "+t,2); 
 	    scribeFooter(guide,1); 
-	    scribeFooter(menu,0); 
+	    scribeFooter(menu,0);
 	    }
 
 	String title ="POV 2016: Tet mesh", name ="Pierre Hulot",

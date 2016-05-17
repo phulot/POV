@@ -1,5 +1,6 @@
 package cornerDS;
-import java.util.Iterator;
+
+import java.util.Set;
 
 import Applet.*;
 import POV.BorderCornerException;
@@ -30,7 +31,9 @@ public class POVDisplay {
 	public void o() {
 		try {
 			currentCorner = pov.o(currentCorner);
+			System.out.println(currentCorner);
 		} catch (BorderCornerException e) {
+			System.out.println(currentCorner);
 			currentCorner = e.o;
 		}
 	}
@@ -94,7 +97,7 @@ public class POVDisplay {
 	/**
 	 * display the tetrahedrization
 	 */
-	public void showWall() {
+	public long showWall() {
 		long time = System.currentTimeMillis();
 		for (int t : pov.DS) {
 //			if (pov.DS.V(4 * t) != -1&&TetPealing.getTetType(t, pov)!=21) {
@@ -105,7 +108,7 @@ public class POVDisplay {
 			display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[2]));
 //			}
 		}
-		System.out.println("display time : "+(System.currentTimeMillis()-time));
+		return System.currentTimeMillis()-time;
 	}
 	/**
 	 * display the tetrahedrization, 

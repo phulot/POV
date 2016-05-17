@@ -50,6 +50,7 @@ public class OppositeVertexBuilder {
 	
 	public static OppositeVertex loadFromPOV(POV p){
 		int g = p.computegenus();
+		System.out.println(g);
 		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
 		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
@@ -80,7 +81,7 @@ public class OppositeVertexBuilder {
 				}
 			}
 		}
-		System.out.println(nf==l);
+		System.out.println("no interior vertices "+(nf==l));
 		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);

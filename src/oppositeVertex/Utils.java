@@ -1,13 +1,16 @@
 package oppositeVertex;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 import Jcg.geometry.Point_3;
 import Jcg.geometry.Vector_3;
+import POV.BorderFaceException;
 import POV.POV;
 import POV.vec;
+import oppositeVertex.OppositeVertex.Tet;
 import POV.pt;
 
 public class Utils {
@@ -89,5 +92,41 @@ public class Utils {
 
 	public static double oppositeSide(pt A, pt B, pt C, pt O, pt V) {
 		return (Side(A,B,C,O)*Side(A, B, C, V));
+	}
+	
+	public static void removeOpFromPov(OppositeVertex op,POV p){
+		Set<Integer> s = new HashSet<>();
+		for (int i=0;i<p.nt;i++){
+			for (int k=0;k<4;k++){
+				try {
+					p.O(4*i+k);
+				} catch (BorderFaceException e) {
+					s.add(i);
+				}
+			}
+		}
+		Integer[] tab = s.toArray(new Integer[0]);
+		Arrays.sort(tab);
+		for (int l=(tab.length-1);l>=0;l--){
+			p.removeTetrahedron(tab[l]);
+		}
+		s = new HashSet<>();
+		for (Tet t : op.tetids){
+			for (int i=0;i<p.nt;i++){
+				int k=0;
+				for (int k0=0;k0<4;k0++){
+					for (int k1=0;k1<4;k1++){
+						if (t.Vertex(k1)==p.V[4*i+k0])k++;
+					}
+				}
+				if (k==4) s.add(i);
+			}
+		}
+		tab = s.toArray(new Integer[0]);
+		Arrays.sort(tab);
+		for (int k=tab.length-1;k>=0;k--){
+			p.removeTetrahedron(tab[k]);
+		}
+		System.out.println("done");
 	}
 }
