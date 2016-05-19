@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import cornerDS.faceOperators;
+import Triangulations.pt;
+import Triangulations.vec;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -678,7 +680,7 @@ public class POV implements faceOperators{
 		for (int i = 0; i < 4*nt; i++) {
 			inppov[s++] = (V[i]) + "," + (O[i]);
 		}
-		povBuilder.saveStrings(fn, inppov);
+		POVBuilder.saveStrings(fn, inppov);
 		System.out.println("saved");
 	};
 	

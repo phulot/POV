@@ -9,6 +9,8 @@ import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import subsurface.*;
 import POV.*;
+import Triangulations.pt;
+import Triangulations.vec;
 import cornerDS.cornerBasedDS;
 import oppositeVertex.OppositeVertex;
 import oppositeVertex.OppositeVertexBuilder;
@@ -41,7 +43,7 @@ public class POVjava extends PApplet {
 	cornerBasedDS Mesh; // tet mesh
 //	cornerBasedDS Mesh0; // tet mesh
 //	POV Mesh;
-	cornerDS.POVDisplay meshDisplay;
+	cornerDS.CornerBasedDisplay meshDisplay;
 //	cornerDS.POVDisplay meshDisplay0;
 	double tim=0;
 	int k=0;
@@ -57,13 +59,13 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  meshName = "gear";
-	  POV pov = povBuilder.loadpov("data/"+meshName,0.1f);
+	  POV pov = POVBuilder.loadpov("data/"+meshName,0.1f);
 	  OppositeVertex op = OppositeVertexBuilder.loadFromPOV(pov);
 	  todisplay=Utils.removeOpFromPov(op, pov);
 	  System.out.println(pov.nt);
 //	  Mesh0 = new cornerBasedDS(pov);
 	  Mesh = new cornerBasedDS(op);
-	  meshDisplay = new cornerDS.POVDisplay(this, Mesh);
+	  meshDisplay = new cornerDS.CornerBasedDisplay(this, Mesh);
 //	  meshDisplay0 = new cornerDS.POVDisplay(this, Mesh0);
 //	  Sub = new subSurface(Mesh,meshName);
 //	  SubDisplay = new subsurfaceDisplay(this,Sub);

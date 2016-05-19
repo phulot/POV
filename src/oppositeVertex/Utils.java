@@ -7,10 +7,10 @@ import java.util.Set;
 
 import POV.BorderFaceException;
 import POV.POV;
-import POV.vec;
+import Triangulations.vec;
 import Triangulations.Triangulation;
 import oppositeVertex.OppositeVertex.Tet;
-import POV.pt;
+import Triangulations.pt;
 
 public class Utils {
 	public static double Side(vec n,vec t){

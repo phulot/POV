@@ -3,7 +3,7 @@ package cornerDS;
 import java.util.Iterator;
 
 import POV.BorderFaceException;
-import POV.pt;
+import Triangulations.pt;
 
 public interface faceOperators extends Iterable<Integer> {
 	

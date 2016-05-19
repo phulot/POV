@@ -1,9 +1,11 @@
 package Triangulations;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
-import POV.pt;
-import POV.vec;
+import Jcg.geometry.Pair;
 
 public class Vlist implements Triangulation {
 
@@ -11,7 +13,7 @@ public class Vlist implements Triangulation {
 	int[] H;
 	int[] L;
 	
-	public Vlist(pt[] g,int[] C) {
+	public Vlist(pt[] g,Integer[] C) {
 		G=g;
 		H=new int[g.length];
 		L=new int[C.length];
@@ -22,6 +24,7 @@ public class Vlist implements Triangulation {
 			L[i]=H[C[i]];
 			H[C[i]]=i;
 		}
+//		reorderCycles();
 	}
 	
 	@Override
@@ -63,6 +66,11 @@ public class Vlist implements Triangulation {
 	@Override
 	public int getVertexID(int faceID, int relativeVertexID) {
 		int t = L[3*faceID+relativeVertexID];
+		while(t>=0)t=L[t];
+		return -1*t-1;
+	}
+	public int vertex(int w) {
+		int t = L[w];
 		while(t>=0)t=L[t];
 		return -1*t-1;
 	}
@@ -108,4 +116,67 @@ public class Vlist implements Triangulation {
 		return H.length+L.length;
 	}
 
+	public void checkTriangulation(){
+		int err=0;
+		HashMap<Pair<Integer>,Integer> map = new HashMap<>();
+		for (int i=0;i<L.length/3;i++){
+			if (getVertexID(i, 0)==getVertexID(i, 1)||getVertexID(i, 0)==getVertexID(i, 2)||getVertexID(i, 1)==getVertexID(i, 2))
+				err++;
+			int u=getVertexID(i, 0),v=getVertexID(i, 1);
+			Pair<Integer> p= new Pair<>(Math.min(u, v),Math.max(u, v));
+			if (map.get(p)!=null)map.remove(p);else map.put(p, i);
+			v=getVertexID(i, 2);
+			p= new Pair<>(Math.min(u, v),Math.max(u, v));
+			if (map.get(p)!=null)map.remove(p);else map.put(p, i);
+			u=getVertexID(i, 1);
+			p= new Pair<>(Math.min(u, v),Math.max(u, v));
+			if (map.get(p)!=null)map.remove(p);else map.put(p, i);
+		}
+		if (err!=0)
+			System.out.println("degenerated triangles "+err);
+		System.out.println(map.size());
+	}
+	
+//	private void reorderCycles(){
+//		pt p = new pt();
+//		pt.P();
+//		for (int i=0;i<H.length;i++){
+//			Set<Integer> s = new HashSet<Integer>();
+//			int t = H[i];
+//			while(t>=0){
+//				s.add(t);
+//				t=L[t];
+//			}
+//			int v=t;
+//			t=H[i];
+//			System.out.println(s+"   "+v);
+//			for (Integer w: s){
+//				int temp=neighbor(w, s);
+//				if (temp!=H[i])
+//					L[w]=temp;
+//				else L[w]=v;
+//			}
+//		}
+//		System.out.println("reodered");
+//	}
+//	public int neighbor(int ww,Set<Integer> set) {
+//		int v= getVertexID(ww/3, (ww+1)%3);
+////		int z = getVertexID(faceID, (i+2)%3);
+////		double maxAngle = 2*Math.PI;
+//		int x=ww;
+//		for (Integer w:set){
+//			if (w!=ww){
+//				if (getVertexID(w/3, (w+1)%3)==v||getVertexID(w/3, (w+2)%3)==v){
+//					x=w;
+////					int p;
+////					if (getVertexID(w/3, (w+1)%3)==v)p=getVertexID(w/3, (w+2)%3); else p= getVertexID(w/3, (w+1)%3);
+////					double planeAngle = angle(G[z],G[u],G[v],G[p]);
+////					if (planeAngle<maxAngle){maxAngle=planeAngle;x=w;}
+//				}
+//			}
+//			
+//		}
+//		if (x==ww) throw new Error(""+ww);
+//		return x/3;
+//	}
 }

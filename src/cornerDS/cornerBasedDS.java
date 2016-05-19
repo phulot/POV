@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 import POV.BorderCornerException;
 import POV.BorderFaceException;
-import POV.pt;
+import Triangulations.pt;
 
 public class cornerBasedDS {
 

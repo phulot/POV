@@ -1,7 +1,5 @@
 package Triangulations;
 
-import POV.pt;
-
 public interface Triangulation {
 	/**
 	 * return all incident faces of a vertex

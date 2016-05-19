@@ -54,36 +54,74 @@ public class OppositeVertexBuilder {
 		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
 		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
-		op.oppositeVertex = new int[nf];
-		op.maxfaces=(nf/10000+1)*10000;
+		op.maxfaces=(nf/1000+1)*1000;
 		op.maxTet=p.nt;
-		int[] V = new int[3*nf];
+		ArrayList<Integer> T1 = new ArrayList<>();
+		ArrayList<Integer> T2 = new ArrayList<>();
+		ArrayList<Integer> T3 = new ArrayList<>();
+		ArrayList<Integer> O1 = new ArrayList<>();
 		int l = 0;
 		for (int i=0;i<p.nt;i++){
+			int border = 0;
+			int b1=-1,b2=-1,b3=-1;//border indices
+			int i1=-1,i2=-1,i3=-1;//interior indices
 			for (int k=0;k<4;k++){
-				try {
-					p.O(4*i+k);
-				} catch (BorderFaceException e) {
-					if (k%2==0){
-						V[3*l] = p.V[4*i+((k+1)%4)];
-						V[3*l+1] = p.V[4*i+((k+2)%4)];
-						V[3*l+2] = p.V[4*i+((k+3)%4)];
-						op.oppositeVertex[l]=p.V[4*i+k];
-						l++;
-					}
-					else{
-						V[3*l] = p.V[4*i+((k+1)%4)];
-						V[3*l+2] = p.V[4*i+((k+2)%4)];
-						V[3*l+1] = p.V[4*i+((k+3)%4)];
-						op.oppositeVertex[l]=p.V[4*i+k];
-						l++;
-					}
+				if (p.O[4*i+k]!=4*i+k){
+					if (i1==-1)i1=4*i+k;else if (i2==-1)i2=4*i+k;else i3=4*i+k;
+				}
+				else{
+					border++;if (b1==-1)b1=4*i+k;else if (b2==-1)b2=4*i+k;else b3=4*i+k;
 				}
 			}
+			if (border==1){
+//				if (b1%2==0){
+					T1.add(p.V[i1]);
+					T1.add(p.V[i2]);
+					T1.add(p.V[i3]);
+					O1.add(p.V[b1]);
+//				}
+//				else{
+//					T1.add(p.V[4*i+((b1+1)%4)]);
+//					T1.add(p.V[4*i+((b1+3)%4)]);
+//					T1.add(p.V[4*i+((b1+2)%4)]);
+//					O1.add(p.V[4*i+b1]);
+//				}
+			}
+			if (border==2){
+				T2.add(p.V[b1]);
+				T2.add(p.V[i1]);
+				T2.add(p.V[i2]);
+				
+				T2.add(p.V[b2]);
+				T2.add(p.V[i2]);
+				T2.add(p.V[i1]);
+			}
+			if (border==3){
+				T3.add(p.V[i1]);
+				T3.add(p.V[b1]);
+				T3.add(p.V[b2]);
+				
+				T3.add(p.V[i1]);
+				T3.add(p.V[b2]);
+				T3.add(p.V[b3]);
+				
+				T3.add(p.V[i1]);
+				T3.add(p.V[b3]);
+				T3.add(p.V[b1]);
+			}
 		}
+		op.nbrT1=T1.size()/3;
+		op.nbrT2=T2.size()/3;
+		op.nbrT3=T3.size()/3;
+		T1.addAll(T2);
+		T1.addAll(T3);
+		Integer[] V= T1.toArray(new Integer[0]);
+		op.oppositeVertex1=O1.toArray(new Integer[0]);
 		System.out.println("no interior vertices "+(nf==l));
 //		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
-		op.border = new Vlist(p.G, V);
+		Vlist vl = new Vlist(p.G, V);
+		vl.checkTriangulation();
+		op.border=vl;
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);
 			boolean b =true;

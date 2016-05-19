@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import Jcg.geometry.Pair;
-import POV.pt;
 
 public class CornerBasedTriangulation implements Triangulation{
 	public pt[] G;

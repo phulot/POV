@@ -1,5 +1,7 @@
 package POV;
 import Applet.*;
+import Triangulations.pt;
+import Triangulations.vec;
 
 public class POVDisplay {
 

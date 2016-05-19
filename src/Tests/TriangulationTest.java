@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import POV.BorderFaceException;
 import POV.POV;
-import POV.povBuilder;
+import POV.POVBuilder;
 import Triangulations.Vlist;
 import Triangulations.Triangulation;
 
@@ -15,10 +15,10 @@ public class TriangulationTest {
 
 	@Test
 	public void test() {
-		POV p = povBuilder.loadpov("data/pts4");
+		POV p = POVBuilder.loadpov("data/pts4");
 		int g = p.computegenus();
 		int nf= 2*p.nv+4*(g-1);
-		int[] V = new int[3*nf];
+		Integer[] V = new Integer[3*nf];
 		int l = 0;
 		for (int i=0;i<p.nt;i++){
 			for (int k=0;k<4;k++){

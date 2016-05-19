@@ -10,7 +10,7 @@ import cornerDS.cornerBasedDS;
 public class Main {
 
 	public static void main(String[] args) {
-		POV p = povBuilder.loadPV("data/gear.pov");
+		POV p = POVBuilder.loadPV("data/hinge.pov");
 //		double e = 0;
 //		for (int t:p){
 //			for (int i=0;i<12;i++){
@@ -21,10 +21,6 @@ public class Main {
 //		}
 //		System.out.println("edge nbr "+e);
 		OppositeVertex op = OppositeVertexBuilder.loadFromPOV(p);
-		op.new Tet();
-		for (int i=0;i<op.tetids.length;i++){
-			System.out.println(op.tetids[i]);
-		}
 		
 		Utils.testVertexNeighbors(op,p);
 		int k=0;
@@ -42,7 +38,7 @@ public class Main {
 //		System.out.println("Neighbor err nbr "+k);
 		System.out.println(op.storageCost()+"     "+p.storageCost());
 //		System.out.println(op.oppositeFaces.size());
-		System.out.println("opposite Vertex Array Size " + op.border.sizeOfFaces());
+		System.out.println("opposite Vertex Array Size " + op.oppositeVertex1.length);
 		System.out.println("interior edges size : "+op.hashMapSize(op.interiorEdges));
 		System.out.println("opposite face size : "+op.hashMapSize(op.oppositeFaces));
 		System.out.println(op.oppositeFaces.size());

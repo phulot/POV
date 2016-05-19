@@ -1,4 +1,4 @@
-package POV;
+package Triangulations;
 
 public class vec {
 	public float x = 0, y = 0, z = 0;

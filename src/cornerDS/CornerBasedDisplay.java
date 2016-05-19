@@ -2,11 +2,11 @@ package cornerDS;
 
 import Applet.*;
 import POV.BorderCornerException;
-import POV.pt;
-import POV.vec;
+import Triangulations.pt;
+import Triangulations.vec;
 import POV.TetPealing;
 
-public class POVDisplay {
+public class CornerBasedDisplay {
 
 	protected cornerBasedDS pov;
 	protected POVjava display; 
@@ -18,7 +18,7 @@ public class POVDisplay {
 	protected int iv = 0; 
 
 	
-	public POVDisplay(POVjava dis,cornerBasedDS p) {
+	public CornerBasedDisplay(POVjava dis,cornerBasedDS p) {
 		pov=p;
 		display=dis;
 	}

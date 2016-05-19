@@ -9,8 +9,6 @@ import Jcg.triangulations2D.TriangulationDSFace_2;
 import Jcg.triangulations2D.TriangulationDSVertex_2;
 import Jcg.triangulations2D.TriangulationDS_2;
 
-import POV.pt;
-
 class JcgTriangulation implements Triangulation{
 	TriangulationDS_2<Point_3> border;
 	
