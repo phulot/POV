@@ -1,52 +1,52 @@
 package oppositeVertex;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
-import Jcg.geometry.Point_3;
-import Jcg.geometry.Vector_3;
 import POV.BorderFaceException;
 import POV.POV;
 import POV.vec;
+import Triangulations.Triangulation;
 import oppositeVertex.OppositeVertex.Tet;
 import POV.pt;
 
 public class Utils {
-	/**
-	 * gives on which side of the plane ABC is the points O
-	 * @param A : point of the plane
- 	 * @param B : point of the plane
-	 * @param C : point of the plane
-	 * @param O : point to test
-	 * @return >0 if one side, <0 if other side, 0 if on the plane
-	 */
-	public static double Side(Point_3 A,Point_3 B,Point_3 C,Point_3 O){
-		Vector_3 AB = (Vector_3) A.minus(B);
-		Vector_3 AC = (Vector_3) A.minus(C);
-		Vector_3 n = AB.crossProduct(AC);
-		return (double)A.minus(O).innerProduct(n);
+	public static double Side(vec n,vec t){
+		return vec.dot(t,n);
 	}
-	public static double Side(pt A,pt B,pt C,pt O){
-		vec AB = vec.V(A,B);
-		vec AC = vec.V(A,C);
+	public static vec normal(int v0,int v1, int v2, Triangulation t){
+		vec AB = vec.V(t.G(v0),t.G(v1));
+		vec AC = vec.V(t.G(v0),t.G(v2));
 		vec n = vec.N(AB, AC);
-		return vec.dot(vec.V(A,O),n);
+		return n;
+	}
+	/**
+	 * remove the vertices on one side of the plane (AiBiCi)
+	 * the side is defined by op and vi : if op ==true removes the vertices that are on the opposite side of the plane relatively to vi
+	 * create a copy
+	 * @param s : set 
+	 * @param vi : vertex id
+	 * @param Ai : vertex id
+	 * @param Bi : vertex id
+	 * @param Ci : vertex id
+	 * @param op : which side to remove
+	 * @return a new set with only the vertices on the right side
+	 */
+	public static Set<Integer> removeSide(int sideReference, int a,Set<Integer> s,vec n, boolean removeOppositeSide, Triangulation t){
+		Set<Integer> ss = new HashSet<Integer>();
+		pt A=t.G(a);
+		double b = Side(n,vec.V(t.G(sideReference),A));
+		for (Integer i:s){
+			double d=Utils.Side(n, vec.V(t.G(i),A))*b;
+			if (d==0)ss.add(i);
+			if ((d>0&&removeOppositeSide)||(d<0&&!removeOppositeSide))
+				ss.add(i);
+		}
+		return ss;
 	}
 	
-	/**
-	 * test if the two points O and V are on different sides of the plane ABC
-	 * @param A : point of the plane
-	 * @param B : point of the plane
-	 * @param C : point of the plane
-	 * @param O : point to test
-	 * @param V : point to test
-	 * @return 
-	 */
-	public static double oppositeSide(Point_3 A,Point_3 B,Point_3 C,Point_3 O,Point_3 V){
-		return (Side(A,B,C,O)*Side(A, B, C, V));
-	}
 	
 	public static boolean testVertexNeighbors(OppositeVertex op){
 		int k=0;
@@ -86,15 +86,16 @@ public class Utils {
 				s1.removeAll(s0);
 				System.out.println(op.VertexNeighbor(s1.iterator().next()).contains(v));;
 			}
+			else {s0.removeAll(s1);
+				if (s0.size()!=0)
+					System.out.println(s0);
+			}
 		}
 		return false;
 	}
 
-	public static double oppositeSide(pt A, pt B, pt C, pt O, pt V) {
-		return (Side(A,B,C,O)*Side(A, B, C, V));
-	}
-	
-	public static void removeOpFromPov(OppositeVertex op,POV p){
+	public static Boolean[] removeOpFromPov(OppositeVertex op,POV p){
+		ArrayList<Boolean> res = new ArrayList<>();
 		Set<Integer> s = new HashSet<>();
 		for (int i=0;i<p.nt;i++){
 			for (int k=0;k<4;k++){
@@ -108,10 +109,12 @@ public class Utils {
 		Integer[] tab = s.toArray(new Integer[0]);
 		Arrays.sort(tab);
 		for (int l=(tab.length-1);l>=0;l--){
+			res.add(false);
 			p.removeTetrahedron(tab[l]);
 		}
 		s = new HashSet<>();
 		for (Tet t : op.tetids){
+			boolean b=false;
 			for (int i=0;i<p.nt;i++){
 				int k=0;
 				for (int k0=0;k0<4;k0++){
@@ -119,14 +122,17 @@ public class Utils {
 						if (t.Vertex(k1)==p.V[4*i+k0])k++;
 					}
 				}
-				if (k==4) s.add(i);
+				if (k==4) {p.removeTetrahedron(i);b=true;break;}
 			}
+			res.add(!b);
+			if (!b) System.out.println(t);
 		}
-		tab = s.toArray(new Integer[0]);
-		Arrays.sort(tab);
-		for (int k=tab.length-1;k>=0;k--){
-			p.removeTetrahedron(tab[k]);
-		}
+//		tab = s.toArray(new Integer[0]);
+//		Arrays.sort(tab);
+//		for (int k=tab.length-1;k>=0;k--){
+//			p.removeTetrahedron(tab[k]);
+//		}
 		System.out.println("done");
+		return res.toArray(new Boolean[0]);
 	}
 }

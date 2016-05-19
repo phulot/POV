@@ -141,8 +141,8 @@ public class povBuilder {
 		int s = 0;
 		pov.nv = Integer.valueOf(ss[s++]);
 		System.out.println("nv=" +pov. nv);
-		pov.nf = Integer.valueOf(ss[s++]);
-		System.out.println("nf=" + pov.nf);
+//		pov.nf = Integer.valueOf(ss[s++]);
+//		System.out.println("nf=" + pov.nf);
 		pov.nt = Integer.valueOf(ss[s++]);
 		System.out.println("nt=" + pov.nt);
 		pov.nf=4*pov.nt;
