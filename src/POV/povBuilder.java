@@ -145,6 +145,7 @@ public class povBuilder {
 		System.out.println("nf=" + pov.nf);
 		pov.nt = Integer.valueOf(ss[s++]);
 		System.out.println("nt=" + pov.nt);
+		pov.nf=4*pov.nt;
 		pov.maxnt=pov.nt;
 		pov.maxnv=pov.nv;
 		pov.maxnf=6*pov.nt;

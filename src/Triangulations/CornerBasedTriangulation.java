@@ -1,4 +1,4 @@
-package oppositeVertex;
+package Triangulations;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,7 +9,7 @@ import Jcg.geometry.Pair;
 import POV.pt;
 
 public class CornerBasedTriangulation implements Triangulation{
-	pt[] G;
+	public pt[] G;
 	int[] C;
 	int[] V;
 	int[] S;
@@ -70,8 +70,6 @@ public class CornerBasedTriangulation implements Triangulation{
 				if (V[S[p0.getSecond()]]!=V[p0.getSecond()]) throw new Error(""+i);
 			}
 		}
-//		for (int i=0;i<3*nt;i++)System.out.println(S[i]+"   "+V[i]);.
-//		System.out.println(map.size()+"   "+nt);
 		for (int i=0;i<3*nt;i++)if (V[i]!=V[S[i]]) throw new Error(""+i+"  "+S[i]);
 	}
 	
@@ -138,26 +136,6 @@ public class CornerBasedTriangulation implements Triangulation{
 	@Override
 	public int sizeOfFaces() {
 		return nt;
-	}
-	/**
-	 * remove all vertices from the set s, on the ather side of the plane A,B,C
-	 */
-	@Override
-	public Set<Integer> removeSide(int sideReference, Set<Integer> s, int Ai, int Bi, int Ci,
-			boolean removeOppositeSide) {
-		Set<Integer> ss = new HashSet<Integer>();
-		pt A = G[Ai];
-		pt B = G[Bi];
-		pt C = G[Ci];
-		pt O = G[sideReference];
-		for (Integer i:s){
-			pt V = G[i];
-			double d=Utils.oppositeSide(A, B, C, O, V);
-			if (d==0)ss.add(i);
-			if ((d>0&&removeOppositeSide)||(d<0&&!removeOppositeSide))
-				ss.add(i);
-		}
-		return ss;
 	}
 
 	@Override

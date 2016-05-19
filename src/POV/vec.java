@@ -91,7 +91,7 @@ public class vec {
 		return (float) (Math.sqrt(x * x + y * y + z * z));
 	};
 
-	vec normalize() {
+	public vec normalize() {
 		float n = norm();
 		if (n > 0.000001) {
 			div(n);

@@ -1,10 +1,8 @@
-package oppositeVertex;
-
-import java.util.Set;
+package Triangulations;
 
 import POV.pt;
 
-interface Triangulation {
+public interface Triangulation {
 	/**
 	 * return all incident faces of a vertex
 	 * @param vertexid : vertex id
@@ -25,20 +23,6 @@ interface Triangulation {
 	public int sizeOfFaces();
 	
 	/**
-	 * remove the vertices on one side of the plane (AiBiCi)
-	 * the side is defined by op and vi : if op ==true removes the vertices that are on the opposite side of the plane relatively to vi
-	 * create a copy
-	 * @param s : set 
-	 * @param vi : vertex id
-	 * @param Ai : vertex id
-	 * @param Bi : vertex id
-	 * @param Ci : vertex id
-	 * @param op : which side to remove
-	 * @return a new set with only the vertices on the right side
-	 */
-	public Set<Integer> removeSide(int sideReference,Set<Integer> s,int Ai,int Bi,int Ci, boolean removeOppositeSide);
-	
-	/**
 	 * gives a vertex ID form one of his neighboring faces and the label of the vertex in this face 
 	 * @param faceID
 	 * @param relativeVertexID
@@ -54,7 +38,12 @@ interface Triangulation {
 	 */
 	public int neighbor(int i, int faceID);
 	
-	public pt G(int i);
+	/**
+	 * return the geometry point of vertex v
+	 * @param v : vertex id
+	 * @return geometric point
+	 */
+	public pt G(int v);
 	
 	public int storageCost();
 	

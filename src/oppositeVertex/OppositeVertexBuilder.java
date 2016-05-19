@@ -13,6 +13,7 @@ import java.util.Set;
 import POV.*;
 import oppositeVertex.OppositeVertex.Face;
 import oppositeVertex.OppositeVertex.Tet;
+import Triangulations.*;
 
 public class OppositeVertexBuilder {
 	
@@ -50,7 +51,6 @@ public class OppositeVertexBuilder {
 	
 	public static OppositeVertex loadFromPOV(POV p){
 		int g = p.computegenus();
-		System.out.println(g);
 		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
 		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
@@ -82,7 +82,8 @@ public class OppositeVertexBuilder {
 			}
 		}
 		System.out.println("no interior vertices "+(nf==l));
-		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
+//		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
+		op.border = new Vlist(p.G, V);
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);
 			boolean b =true;

@@ -1,13 +1,9 @@
-package oppositeVertex;
+package Triangulations;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import Jcg.geometry.Pair;
-import Jcg.geometry.Point_2;
 import Jcg.geometry.Point_3;
 import Jcg.triangulations2D.TriangulationDSFace_2;
 import Jcg.triangulations2D.TriangulationDSVertex_2;
@@ -36,36 +32,6 @@ class JcgTriangulation implements Triangulation{
 			ver.index=k;k++;
 		}
 	}
-
-
-	/**
-	 * remove the vertices on one side of the plane (AiBiCi)
-	 * the side is defined by op and vi : if op ==true removes the vertices that are on the opposite side of the plane relatively to vi
-	 * create a copy
-	 * @param s : set 
-	 * @param vi : vertex id
-	 * @param Ai : vertex id
-	 * @param Bi : vertex id
-	 * @param Ci : vertex id
-	 * @param op : which side to remove
-	 * @return a new set with only the vertices on the right side
-	 */
-	public Set<Integer> removeSide(int vi,Set<Integer> s,int Ai,int Bi,int Ci, boolean op){
-		Set<Integer> ss = new HashSet<Integer>();
-		Point_3 A = border.vertices.get(Ai).getPoint();
-		Point_3 B = border.vertices.get(Bi).getPoint();
-		Point_3 C = border.vertices.get(Ci).getPoint();
-		Point_3 O = border.vertices.get(vi).getPoint();
-		for (Integer i:s){
-			Point_3 V = border.vertices.get(i).getPoint();
-			double d=Utils.oppositeSide(A, B, C, O, V);
-			if (d==0)ss.add(i);
-			if ((d>0&&op)||(d<0&&!op))
-				ss.add(i);
-		}
-		return ss;
-	}
-
 
 	@Override
 	public Collection<Integer> incidentFaces(int vertexid) {

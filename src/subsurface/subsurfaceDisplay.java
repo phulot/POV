@@ -1,6 +1,5 @@
 package subsurface;
 import java.util.Set;
-import java.util.TreeSet;
 
 import Applet.POVjava;
 import POV.*;

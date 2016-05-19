@@ -1,7 +1,6 @@
 package subsurface;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
 
 import POV.BorderCornerException;
 
