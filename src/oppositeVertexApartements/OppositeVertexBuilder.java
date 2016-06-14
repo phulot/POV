@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Watchable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,60 +92,61 @@ public class OppositeVertexBuilder {
 	}
 
 	static OppositeVertex borderAndTipsHamSurf(POV p, boolean[] m) {
-		int g = p.computegenus();
-		int nf= 2*p.nv+4*(g-1);
 		OppositeVertex op = new OppositeVertex();
 		op.interiorEdges = new HashMap<Integer,Set<Integer>>(p.nv);
 		op.maxTet=p.nt;
-		ArrayList<Integer> T1 = new ArrayList<>();
-		ArrayList<Integer> T2 = new ArrayList<>();
-		ArrayList<Integer> T3 = new ArrayList<>();
-		ArrayList<Integer> Of1 = new ArrayList<>();
-		ArrayList<Integer> Ob1 = new ArrayList<>();
-		ArrayList<Integer> Of2 = new ArrayList<>();
-		ArrayList<Integer> Ob2 = new ArrayList<>();
-		ArrayList<Integer> Of3 = new ArrayList<>();
-		ArrayList<Integer> Ob3 = new ArrayList<>();
-		int l = 0;
+		ArrayList<Integer> Tmainwind = new ArrayList<>();
+		ArrayList<Integer> Tperiphwind = new ArrayList<>();
+		ArrayList<Integer> Twall = new ArrayList<>();
+		ArrayList<Integer> Ofwindow = new ArrayList<>();
+		ArrayList<Integer> Obwindow = new ArrayList<>();
+		ArrayList<Integer> Ofwall = new ArrayList<>();
+		ArrayList<Integer> Obwall = new ArrayList<>();
 		for (int i=0;i<p.nt;i++){
 			for (int o=0;o<4;o++){
 				int fo = p.O[4*i+o];
 				if (fo==4*i+o){
 					if (m[i]) {
-						T1.add(p.V[4*i+(o+1)%4]);
-						T1.add(p.V[4*i+(o+2)%4]);
-						T1.add(p.V[4*i+(o+3)%4]);
-						Of1.add(p.V[4*i+o]);
-						Ob1.add(-1);
+						Tmainwind.add(p.V[4*i+(o+1)%4]);
+						Tmainwind.add(p.V[4*i+(o+2)%4]);
+						Tmainwind.add(p.V[4*i+(o+3)%4]);
+						Ofwindow.add(p.V[4*i+o]);
 					}
 					else {
-						T2.add(p.V[4*i+(o+1)%4]);
-						T2.add(p.V[4*i+(o+2)%4]);
-						T2.add(p.V[4*i+(o+3)%4]);
-						Of2.add(-1);
-						Ob2.add(p.V[4*i+o]);
+						Tperiphwind.add(p.V[4*i+(o+1)%4]);
+						Tperiphwind.add(p.V[4*i+(o+2)%4]);
+						Tperiphwind.add(p.V[4*i+(o+3)%4]);
+						Obwindow.add(p.V[4*i+o]);
 					}
 				}
 				if (m[i]&&!m[fo/4]){
-					T3.add(p.V[4*i+(o+1)%4]);
-					T3.add(p.V[4*i+(o+2)%4]);
-					T3.add(p.V[4*i+(o+3)%4]);
-					Of3.add(p.V[4*i+o]);
-					Ob3.add(p.V[fo]);
+					Twall.add(p.V[4*i+(o+1)%4]);
+					Twall.add(p.V[4*i+(o+2)%4]);
+					Twall.add(p.V[4*i+(o+3)%4]);
+					Ofwall.add(p.V[4*i+o]);
+					Obwall.add(p.V[fo]);
 				}
 			}
 		}
-		Of3.addAll(Of2);Of3.addAll(Of1);
-		Ob3.addAll(Ob2);Ob3.addAll(Ob1);
-		T3.addAll(T2);T3.addAll(T1);
-		Integer[] V= T3.toArray(new Integer[0]);
-		op.oppositeVertexfront=Of3.toArray(new Integer[0]);
-		op.oppositeVertexback=Ob3.toArray(new Integer[0]);
-		System.out.println("size "+op.oppositeVertexback.length);
-		op.maxfaces=(op.oppositeVertexback.length/1000+1)*1000;
-		System.out.println(T1);
-		System.out.println(Of1);
-		System.out.println(Ob1);
+//		Of3.addAll(Of2);Of3.addAll(Of1);
+//		Ob3.addAll(Ob2);Ob3.addAll(Ob1);
+		Twall.addAll(Tmainwind);Twall.addAll(Tperiphwind);
+		Integer[] V= Twall.toArray(new Integer[0]);
+		op.oppositeVertexfrontwall=Ofwall.toArray(new Integer[0]);
+		op.oppositeVertexfrontwindow=Ofwindow.toArray(new Integer[0]);
+		op.oppositeVertexbackwall=Obwall.toArray(new Integer[0]);
+		op.oppositeVertexbackwindow=Obwindow.toArray(new Integer[0]);
+		op.walls=op.oppositeVertexbackwall.length;
+		op.mainWindows=op.oppositeVertexfrontwindow.length;
+		System.out.println(op.oppositeVertexfrontwall.length);
+		System.out.println(op.oppositeVertexfrontwindow.length);
+		System.out.println(op.oppositeVertexbackwall.length);
+		System.out.println(op.oppositeVertexbackwindow.length);
+		System.out.println("size "+V.length/3);
+		op.maxfaces=(V.length/1000+1)*1000;
+//		System.out.println(T1);
+//		System.out.println(Of1);
+//		System.out.println(Ob1);
 //		op.border = new CornerBasedTriangulation(p.G, V, l, p.nv);
 		Vlist vl = new Vlist(p.G, V);
 		vl.checkTriangulation();
@@ -252,8 +254,9 @@ public class OppositeVertexBuilder {
 			}
 		}
 		Integer[] V= T1.toArray(new Integer[0]);
-		op.oppositeVertexfront=Of.toArray(new Integer[0]);
-		op.oppositeVertexback=Ob.toArray(new Integer[0]);
+		op.oppositeVertexfrontwall=Of.toArray(new Integer[0]);
+		op.oppositeVertexbackwall=Ob.toArray(new Integer[0]);
+		op.walls = op.oppositeVertexbackwall.length;
 		System.out.println(T1);
 		System.out.println(Of);
 		System.out.println(Ob);

@@ -16,8 +16,10 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	Vlist border;
 	HashMap<Integer,Set<Integer>> interiorEdges;
 //	HashMap<Integer,Set<Integer>> interiorEdgesapt;
-	Integer[] oppositeVertexfront;
-	Integer[] oppositeVertexback;
+	Integer[] oppositeVertexfrontwall;
+	Integer[] oppositeVertexbackwall;
+	Integer[] oppositeVertexfrontwindow;
+	Integer[] oppositeVertexbackwindow;
 	HashMap<Integer,Set<Integer>> oppositeFaces;
 //	HashMap<Integer,Set<Integer>> oppositeFaces;
 	//TODO change tetid in int[][]
@@ -25,18 +27,19 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	int maxTet;
 	int maxfaces;
 	int regularity;
+	int walls;int mainWindows;
 	
 	public OppositeVertex(){};
-	public OppositeVertex(Vlist border, HashMap<Integer, Set<Integer>> interiorEdges, Integer[] oppositeVertexfront, Integer[] oppositeVertexback,
-			int maxTet) {
-		super();
-		this.border = border;
-		this.interiorEdges = interiorEdges;
-		this.oppositeVertexfront = oppositeVertexfront;
-		this.oppositeVertexback = oppositeVertexback;
-		this.maxTet = maxTet;
-		System.out.println("size"+oppositeVertexback.length);
-	}
+//	public OppositeVertex(Vlist border, HashMap<Integer, Set<Integer>> interiorEdges, Integer[] oppositeVertexfront, Integer[] oppositeVertexback,
+//			int maxTet) {
+//		super();
+//		this.border = border;
+//		this.interiorEdges = interiorEdges;
+//		this.oppositeVertexfront = oppositeVertexfront;
+//		this.oppositeVertexback = oppositeVertexback;
+//		this.maxTet = maxTet;
+//		System.out.println("size"+oppositeVertexback.length);
+//	}
 	
 	public double computeRegularity(){
 		double wall=0;
@@ -58,7 +61,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	public int storageCost(){
 //		return 2*border.sizeOfFaces()+oppositeVertex.length+interiorEdges.size();
 //		return border.storageCost()+oppositeVertex.length+interiorEdges.size();
-		return hashMapSize(interiorEdges)+hashMapSize(oppositeFaces)+oppositeVertexfront.length+oppositeVertexback.length+2*tetids.length+border.storageCost();
+		return hashMapSize(interiorEdges)+hashMapSize(oppositeFaces)+oppositeVertexfrontwall.length+oppositeVertexfrontwindow.length+oppositeVertexbackwall.length+oppositeVertexbackwindow.length+2*tetids.length+border.storageCost();
 	}
 	
 	/**
@@ -68,9 +71,18 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	 * @return vertex id
 	 */
 	public int tipVertex(int face, boolean isfront){
-		if (isfront)
-			return oppositeVertexfront[face];
-		else return oppositeVertexback[face];
+		if (isfront){
+			if (face<walls)
+				return oppositeVertexfrontwall[face];
+			else if (face<walls+mainWindows)return oppositeVertexfrontwindow[face-walls];
+			return -1;
+		}
+		else {
+			if (face<walls)
+				return oppositeVertexbackwall[face];
+			else if (face<walls+mainWindows)return -1;
+			return oppositeVertexbackwindow[face-walls-mainWindows];
+		}
 	}
 	/**
 	 * tip vertex of the corner : of corner's face on the side of the corner.
@@ -86,10 +98,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	}
 	
 	public int tipVertex(int corner){
-//		System.out.println("isfront________________"+Vlist.isfVl(corner));
-		if (Vlist.isfVl(corner))
-			return oppositeVertexfront[Vlist.tc(corner)];
-		else return oppositeVertexback[Vlist.tc(corner)];
+		return tipVertex(Vlist.tc(corner), Vlist.isfVl(corner));
 	}
 	
 	public void buildOppositeFaces(){
@@ -293,11 +302,11 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	
 	boolean isATet(int t){
 		if (t>=0) {
-			if (oppositeVertexfront[t]!=-1)
+			if (t<walls+mainWindows)
 				return isABorderTet(t, true);
 			else return false;
 		}
-		if (oppositeVertexback[-t-1]!=-1)
+		if (-t-1<walls||-t-1>walls+mainWindows)
 			return isABorderTet(-t-1, false);
 		return false;
 	}

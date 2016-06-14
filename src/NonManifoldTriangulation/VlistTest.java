@@ -52,8 +52,8 @@ public class VlistTest {
 	void testNeighbor(Vlist t){
 		boolean[] tab = new boolean[t.L.length/3];
 		for (int i=0;i<tab.length;i++){
-			tab[i]=t.clockWise(i,Vlist.E);
-			System.out.print(tab[i]+",");
+//			tab[i]=t.clockWise(i,Vlist.E);
+//			System.out.print(tab[i]+",");
 		}
 		System.out.println();
 		for (int i=0;i<tab.length;i++){

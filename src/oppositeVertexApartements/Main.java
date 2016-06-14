@@ -10,7 +10,8 @@ import cornerDS.cornerBasedDS;
 public class Main {
 
 	public static void main(String[] args) {
-		POV p = POVBuilder.createRandomMesh(10000, 1);
+//		POV p = POVBuilder.createRandomCubeMesh(10000, 1);
+		POV p = POVBuilder.createRandomSphereMesh(1000, 1);
 //		POV p = POVBuilder.loadPV("data/gear.pov");
 //		Utils.computeHsurfaceT1(p);
 //		Utils.computeHsurfaceT2(p);

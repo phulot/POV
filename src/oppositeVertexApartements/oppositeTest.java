@@ -18,7 +18,7 @@ public class oppositeTest {
 
 	@Test
 	public void test() {
-		POV p = POVBuilder.createRandomMesh(1000, 1);
+		POV p = POVBuilder.createRandomCubeMesh(1000, 1);
 //		POV p = POVBuilder.loadpov("data/gear");
 		OppositeVertex op = OppositeVertexBuilder.borderAndTips(p);
 		testCorrect(op);

@@ -22,7 +22,7 @@ public class POVBuilder {
 	 * @param prob : probability of keeping each tetrahedron
 	 * @return 
 	 */
-	public static POV createRandomMesh(int nbv, float prob) {
+	public static POV createRandomCubeMesh(int nbv, float prob) {
 		POV pov = new POV();
 		Delaunay_3 del = new Delaunay_3();
 		int N = nbv;
@@ -61,7 +61,50 @@ public class POVBuilder {
 		pov.orientMesh();
 		return pov;
 	}
-	
+	public static POV createRandomSphereMesh(int nbv, float prob) {
+		POV pov = new POV();
+		Delaunay_3 del = new Delaunay_3();
+		int N = nbv;
+		pov.nv = nbv;
+		int spacesize = 500000;
+		for (int i = 0; i < N; i++) {
+			double r= (int) (Math.random() * spacesize );
+			double phi = 2*Math.PI*Math.random();
+			double tetha = 2*Math.PI*Math.random();
+			int z= (int)(r*Math.cos(tetha));
+			int x= (int)(r*Math.sin(tetha)*Math.cos(phi));
+			int y= (int)(r*Math.sin(tetha)*Math.sin(phi));
+			Point_3 p = new Point_3(x,y,z);
+			del.insert(p);
+
+		}
+		Collection<TriangulationDSCell_3<Point_3>> cells = del.finiteCells();
+		ArrayList<TriangulationDSVertex_3<Point_3>> vertex = new ArrayList<TriangulationDSVertex_3<Point_3>>(
+				del.finiteVertices());
+		int k = 0;
+		pov.maxnt = cells.size();
+		pov.maxnf = 4*cells.size();
+		pov.V=new Integer[4*cells.size()];
+		for (TriangulationDSVertex_3<Point_3> v : vertex) {
+			pov.G[k] = new pt(Float.valueOf("" + v.getPoint().x)/1000, Float.valueOf("" + v.getPoint().y)/1000,
+					Float.valueOf("" + v.getPoint().z)/1000);
+			k++;
+		}
+		int nbt = 0;
+		for (TriangulationDSCell_3<Point_3> t : cells) {
+			if (Math.random() < prob) {
+				for (int i = 0; i < 4; i++)
+					pov.V[4 * nbt + i] = vertex.indexOf(t.vertex(i));
+				nbt++;
+			}
+		}
+		pov.nt = nbt;
+		pov.nf = 4*pov.nt;
+//		reorderTetrahedrons();
+		pov.createOtable();
+		pov.orientMesh();
+		return pov;
+	}
 	/*
 	 * pov initiManual() { nv=5; nt=3; nf=18; // internal V[0]=0; O[0]=7;
 	 * V[1]=1; O[1]=13; V[2]=2; O[2]=12; V[3]=3; O[3]=11; V[4]=1; O[4]=15;
