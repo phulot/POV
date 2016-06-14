@@ -1,6 +1,8 @@
-package POV;
+package Triangulations;
+
 public class pt { 
 	public float x=0,y=0,z=0; 
+	public String toString(){return "("+x+" "+y+" "+z+")";}
 	public pt () {}; 
 	public pt (float px, float py) {x = px; y = py;};
 	public pt (float px, float py, float pz) {x = px; y = py; z = pz; };
@@ -34,7 +36,7 @@ public class pt {
 	public static pt P(float a, pt A, float b, pt B) {return A(P(a,A),P(b,B));}                                        // aA+bB 
 	public static pt P(float a, pt A, float b, pt B, float c, pt C) {return A(P(a,A),P(b,B,c,C));}                     // aA+bB+cC 
 	public static pt P(float a, pt A, float b, pt B, float c, pt C, float d, pt D){return A(P(a,A,b,B),P(c,C,d,D));}   // aA+bB+cC+dD
-	public static pt P(pt P, vec V) {return new pt(P.x + V.x, P.y + V.y, P.z + V.z); }                                 // P+V
+	public static pt P(pt P, vec V) {return new pt(P.x + V.x, P.y + V.y, P.z + V.z);}                                // P+V
 	public static pt P(pt P, float s, vec V) {return new pt(P.x+s*V.x,P.y+s*V.y,P.z+s*V.z);}                           // P+sV
 	public static pt P(pt O, float x, vec I, float y, vec J) {return P(O.x+x*I.x+y*J.x,O.y+x*I.y+y*J.y,O.z+x*I.z+y*J.z);}  // O+xI+yJ
 	public static pt P(pt O, float x, vec I, float y, vec J, float z, vec K) {return P(O.x+x*I.x+y*J.x+z*K.x,O.y+x*I.y+y*J.y+z*K.y,O.z+x*I.z+y*J.z+z*K.z);}  // O+xI+yJ+kZ

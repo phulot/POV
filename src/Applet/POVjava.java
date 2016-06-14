@@ -9,10 +9,12 @@ import processing.opengl.PGL;
 import processing.opengl.PGraphics3D;
 import subsurface.*;
 import POV.*;
+import Triangulations.pt;
+import Triangulations.vec;
 import cornerDS.cornerBasedDS;
 import oppositeVertex.OppositeVertex;
 import oppositeVertex.OppositeVertexBuilder;
-import subsurface.subsurfaceDisplay;
+import oppositeVertex.Utils;
 
 import processing.core.*;
 
@@ -39,10 +41,13 @@ public class POVjava extends PApplet {
 	subSurface Sub;
 //	subsurfaceDisplay SubDisplay;
 	cornerBasedDS Mesh; // tet mesh
+//	cornerBasedDS Mesh0; // tet mesh
 //	POV Mesh;
-	cornerDS.POVDisplay meshDisplay;
+	cornerDS.CornerBasedDisplay meshDisplay;
+//	cornerDS.POVDisplay meshDisplay0;
 	double tim=0;
 	int k=0;
+	Boolean[] todisplay;
 //	POVDisplay meshDisplay;
 
 	public void settings() {
@@ -54,13 +59,14 @@ public class POVjava extends PApplet {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
 	  meshName = "tahol";
-	  POV pov = povBuilder.loadpov("data/"+meshName,0.05f);
+	  POV pov = POVBuilder.loadpov("data/"+meshName,0.1f);
 	  OppositeVertex op = OppositeVertexBuilder.loadFromPOV(pov);
-//	  Utils.removeOpFromPov(op, pov);
-//	  System.out.println(pov.nt);
-//	  Mesh = new cornerBasedDS(pov);
+	  todisplay=Utils.removeOpFromPov(op, pov);
+	  System.out.println(pov.nt);
+//	  Mesh0 = new cornerBasedDS(pov);
 	  Mesh = new cornerBasedDS(op);
-	  meshDisplay = new cornerDS.POVDisplay(this, Mesh);
+	  meshDisplay = new cornerDS.CornerBasedDisplay(this, Mesh);
+//	  meshDisplay0 = new cornerDS.POVDisplay(this, Mesh0);
 //	  Sub = new subSurface(Mesh,meshName);
 //	  SubDisplay = new subsurfaceDisplay(this,Sub);
 	  pt p = pt.P(0,0,0);
@@ -104,17 +110,18 @@ public class POVjava extends PApplet {
 		// PtQ.setToL(P,s,Q); // compute interpolated control polygon
 		if (showVertices) {
 			fill(blue, 100);
-			meshDisplay.drawBalls(10f); // draw semitransluent green balls around the vertices
+			meshDisplay.drawBalls(1f); // draw semitransluent green balls around the vertices
 //			fill(red, 100);
 //			SubDisplay.showPicked(0.1f); // shows currently picked vertex in red (last key action 'x', 'z'
 		}
 		fill(blue);
 		meshDisplay.drawSelectedCorner();
 		if (showWalls) {
-			stroke(black);strokeWeight(1);noFill();//fill(yellow,10);
+			stroke(black);strokeWeight(5);noFill();//fill(yellow,10);
 			tim += meshDisplay.showWall();k++;
-//			stroke(black);strokeWeight(2);fill(red);
-//			tim += meshDisplay0.showWall();k++;
+			noStroke();strokeWeight(1);fill(red);
+			tim += meshDisplay.showWall(todisplay);
+			k++;
 			
 //			stroke(black);strokeWeight(3);noFill();
 			// Mesh.showWall(); strokeWeight(6);
@@ -199,7 +206,7 @@ public class POVjava extends PApplet {
 	  change=true;
 	  }
 
-	public void mouseWheel(MouseEvent event) {dz += event.getAmount()*10; change=true;}
+	public void mouseWheel(MouseEvent event) {dz += (event.getAmount()*10); change=true;}
 
 	public void mousePressed() {
 	   if (!keyPressed) picking=true;

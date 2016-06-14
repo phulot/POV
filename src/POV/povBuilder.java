@@ -12,8 +12,9 @@ import Jcg.geometry.Point_3;
 import Jcg.triangulations3D.Delaunay_3;
 import Jcg.triangulations3D.TriangulationDSCell_3;
 import Jcg.triangulations3D.TriangulationDSVertex_3;
+import Triangulations.pt;
 
-public class povBuilder {
+public class POVBuilder {
 
 	/**
 	 * create a random mesh by a delaunay3D and deleting some tetrahedrons 
@@ -141,10 +142,11 @@ public class povBuilder {
 		int s = 0;
 		pov.nv = Integer.valueOf(ss[s++]);
 		System.out.println("nv=" +pov. nv);
-		pov.nf = Integer.valueOf(ss[s++]);
-		System.out.println("nf=" + pov.nf);
+//		pov.nf = Integer.valueOf(ss[s++]);
+//		System.out.println("nf=" + pov.nf);
 		pov.nt = Integer.valueOf(ss[s++]);
 		System.out.println("nt=" + pov.nt);
+		pov.nf=4*pov.nt;
 		pov.maxnt=pov.nt;
 		pov.maxnv=pov.nv;
 		pov.maxnf=6*pov.nt;

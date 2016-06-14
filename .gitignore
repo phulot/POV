@@ -2,6 +2,8 @@
 Thumbs.db
 ehthumbs.db
 data/*
+bin/*
+bin\*
 Jcg.jar
 .settings/*
 PICTURES/*

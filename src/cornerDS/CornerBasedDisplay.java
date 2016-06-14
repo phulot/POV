@@ -1,14 +1,12 @@
 package cornerDS;
 
-import java.util.Set;
-
 import Applet.*;
 import POV.BorderCornerException;
-import POV.pt;
-import POV.vec;
+import Triangulations.pt;
+import Triangulations.vec;
 import POV.TetPealing;
 
-public class POVDisplay {
+public class CornerBasedDisplay {
 
 	protected cornerBasedDS pov;
 	protected POVjava display; 
@@ -20,7 +18,7 @@ public class POVDisplay {
 	protected int iv = 0; 
 
 	
-	public POVDisplay(POVjava dis,cornerBasedDS p) {
+	public CornerBasedDisplay(POVjava dis,cornerBasedDS p) {
 		pov=p;
 		display=dis;
 	}
@@ -106,6 +104,23 @@ public class POVDisplay {
 			display.show(pov.DS.G(V[0]), pov.DS.G(V[2]), pov.DS.G(V[3]));
 			display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[3]));
 			display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[2]));
+//			}
+		}
+		return System.currentTimeMillis()-time;
+	}
+	public long showWall(Boolean[] toDisplay) {
+		long time = System.currentTimeMillis();
+		int i=0;
+		for (int t : pov.DS) {
+//			if (pov.DS.V(4 * t) != -1&&TetPealing.getTetType(t, pov)!=21) {
+			if (toDisplay[i]){
+				int[] V= pov.DS.Vertices(t);
+				display.show(pov.DS.G(V[1]), pov.DS.G(V[2]), pov.DS.G(V[3]));
+				display.show(pov.DS.G(V[0]), pov.DS.G(V[2]), pov.DS.G(V[3]));
+				display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[3]));
+				display.show(pov.DS.G(V[0]), pov.DS.G(V[1]), pov.DS.G(V[2]));
+			}
+			i++;
 //			}
 		}
 		return System.currentTimeMillis()-time;
