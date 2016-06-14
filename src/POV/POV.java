@@ -57,6 +57,21 @@ public class POV implements faceOperators{
 		return 8*nt;
 	}
 	
+	public boolean hasTet(int[] v){
+		for (int i=0;i<nt;i++){
+			int k=0;
+			for (int j=0;j<4;j++){
+				for(int l=0;l<4;l++)
+					if (v[j]==V[4*i+l])k++;
+			}
+			if (k==4){
+				System.out.println(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	void refreshIntegers(){
 		maxnv=G.length;
 		maxnf=V.length;

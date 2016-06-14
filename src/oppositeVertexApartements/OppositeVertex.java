@@ -477,7 +477,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 						k++;
 					}
 			if (k==2){
-				if (tipVertex(w/3, tet.main)==-1) throw new Error();
+				if (tipVertex(w/3, tet.main)==-1) throw new Error(w/3+" ("+v+","+vert[(o+1)%4]+","+vert[(o+2)%4]+","+vert[(o+3)%4]+") ("+border.vw(w)+","+border.vw(Vlist.nw(w))+","+border.vw(Vlist.pw(w))+") "+tet.interior+"  "+tet.main);
 				id = buildBorderTet(w/3,tet.main);
 				break;
 			}
@@ -494,6 +494,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 			if (v==vs[i])
 				return new Face(id,i);
 		}
+				
 		throw new Error();
 //		return new Face(id,0);
 	}
@@ -558,7 +559,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 		if (f>=4*maxTetID()) return f-4*maxTetID();
 		Face ff=new Face().fromInt(f);
 		Face fa = opposite(ff);
-		return opposite(new Face().fromInt(f)).toInt();
+		return fa.toInt();
 	}
 	@Override
 	public Integer V(int v) {
@@ -812,6 +813,23 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 //					if (tipVertex(k,t.t[0],!t.main)==t.Vertex(relf)){
 //						return Vlist.tc(border.neighbor(k,t.t[0],!t.main));
 //					}
+				}
+				int[] vert= t.Vertices();
+				for (int vv=0;vv<3;vv++){
+					v=vert[(relf+vv+1)%4];
+					Iterable<Integer> wcol = border.incidentCorner(v);
+					for (Integer w:wcol){
+						int k=0;
+						for (int j=0;j<4;j++)
+							if (j!=relf)
+								if (border.vw(Vlist.nw(w))==vert[j]||border.vw(Vlist.pw(w))==vert[j]){
+									k++;
+								}
+						if (k==2){
+							System.out.println("wrong window");
+							return w/3;
+						}
+					}
 				}
 			}
 			return -1;

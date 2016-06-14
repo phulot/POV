@@ -11,8 +11,9 @@ public class Main {
 
 	public static void main(String[] args) {
 //		POV p = POVBuilder.createRandomCubeMesh(10000, 1);
-		POV p = POVBuilder.createRandomSphereMesh(1000, 1);
-//		POV p = POVBuilder.loadPV("data/gear.pov");
+//		POV p = POVBuilder.createRandomSphereMesh(1000, 1);
+		POV p = POVBuilder.loadpov("data/hinge");
+		System.out.println(p.hasTet(new int[]{122,120,179,198}));
 //		Utils.computeHsurfaceT1(p);
 //		Utils.computeHsurfaceT2(p);
 //		double e = 0;
@@ -41,6 +42,7 @@ public class Main {
 		}
 //		System.out.println("Neighbor err nbr "+k);
 		System.out.println(op.storageCost()+"     "+p.storageCost());
+		System.out.println(p.storageCost()/(double)op.storageCost());
 //		System.out.println(op.oppositeFaces.size());
 //		System.out.println("opposite Vertex Array Size " + op.oppositeVertexbackwall.length+ op.oppositeVertexbackwind.length+op.oppositeVertexfrontwall.length+op.oppositeVertexfrontwind.length);
 		System.out.println("interior edges size : "+op.hashMapSize(op.interiorEdges));
@@ -57,30 +59,47 @@ public class Main {
 //			}
 //		}
 		System.out.println("number of ext tets : "+k);
+		assert(k+op.tetids.length==p.nt);
 		k=0;
 		for (Integer v =0;v<op.border.sizeOfVertices();v++){
 			for (Integer l:op.border.incidentCorner(v))
 				k++;
 		}
 		System.out.println(k/(double)op.border.sizeOfVertices());
-		cornerBasedDS cor = new cornerBasedDS(op);
+//		cornerBasedDS cor = new cornerBasedDS(op);
 		long time =System.nanoTime();
-		Set<Integer> s = cor.traversal();
-		s.removeIf(new Predicate<Integer>() {
-
-			@Override
-			public boolean test(Integer t) {
-				return false;// t<op.maxfaces;
+		for (Integer i : op){
+			for (int j=0;j<4;j++){
+//				System.out.println(i);
+				try {
+					op.O(4*i+j);
+				} catch (BorderFaceException e) {
+				}
 			}
-		});
-		System.out.println(s.size());
+		}
+//		Set<Integer> s = cor.traversal();
+//		s.removeIf(new Predicate<Integer>() {
+//
+//			@Override
+//			public boolean test(Integer t) {
+//				return false;// t<op.maxfaces;
+//			}
+//		});
+//		System.out.println(s.size());
 		double t1 = (System.nanoTime()-time)/(double)1000000;
-//		System.out.println("traversal time "+t1);
-		cor = new cornerBasedDS(p);
+		System.out.println("traversal time "+t1);
+//		cor = new cornerBasedDS(p);
 		time =System.nanoTime();
-		System.out.println(cor.traversal().size());
+		for (Integer i : op){
+			for (int j=0;j<4;j++)
+				try {
+					op.O(4*i+j);
+				} catch (BorderFaceException e) {
+				}
+		}
+//		System.out.println(cor.traversal().size());
 		double t2 = (System.nanoTime()-time)/(double)1000000;
-//		System.out.println("traversal time "+t2);
+		System.out.println("traversal time "+t2);
 		System.out.println("rapport "+(t1/t2));
 		time =System.nanoTime();
 		for (Integer i : op){

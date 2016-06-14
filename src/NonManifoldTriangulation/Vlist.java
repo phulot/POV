@@ -285,4 +285,7 @@ public class Vlist{
 	public String FaceToSting(int f){
 		return "("+vw(3*f)+", "+vw(3*f+1)+", "+vw(3*f+2)+")";
 	}
+	public boolean hasVertex(int f, int v){
+		return vw(3*f)==v||vw(3*f+1)==v||vw(3*f+2)==v;
+	}
 }

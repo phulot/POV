@@ -54,6 +54,7 @@ public class OppositeVertexBuilder {
 	
 	public static OppositeVertex loadFromPOV(POV p){
 		boolean[] m = Utils.computeHsurfaceT2(p);
+		System.out.println("65 "+m[65]);
 		OppositeVertex op = borderAndTipsHamSurf(p,m);
 		for (int i=0;i<12*p.nt;i++){
 			Set<Integer> set = p.edgeNeighbors(i);
@@ -143,7 +144,8 @@ public class OppositeVertexBuilder {
 		System.out.println(op.oppositeVertexbackwall.length);
 		System.out.println(op.oppositeVertexbackwindow.length);
 		System.out.println("size "+V.length/3);
-		op.maxfaces=(V.length/1000+1)*1000;
+		op.maxfaces=(V.length/3)+10000;
+		System.out.println("maxFace: "+op.maxfaces);
 //		System.out.println(T1);
 //		System.out.println(Of1);
 //		System.out.println(Ob1);
