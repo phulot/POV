@@ -2,6 +2,7 @@ package Triangulations;
 
 public class pt { 
 	public float x=0,y=0,z=0; 
+	public String toString(){return "("+x+" "+y+" "+z+")";}
 	public pt () {}; 
 	public pt (float px, float py) {x = px; y = py;};
 	public pt (float px, float py, float pz) {x = px; y = py; z = pz; };

@@ -2,7 +2,7 @@ package Triangulations;
 
 public class vec {
 	public float x = 0, y = 0, z = 0;
-
+	public String toString(){return "("+x+" "+y+" "+z+")";}
 	vec() {
 	};
 
@@ -96,6 +96,7 @@ public class vec {
 		if (n > 0.000001) {
 			div(n);
 		}
+		else throw new Error();
 		;
 		return this;
 	};

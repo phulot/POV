@@ -3,7 +3,6 @@ package Triangulations;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import Jcg.geometry.Pair;
 
@@ -80,18 +79,18 @@ public class Vlist implements Triangulation {
 		int ww = 3*faceID+i;
 		int u = getVertexID(faceID, i);
 		int v = getVertexID(faceID, (i+1)%3);
-//		int z = getVertexID(faceID, (i+2)%3);
-//		double maxAngle = 2*Math.PI;
+		int z = getVertexID(faceID, (i+2)%3);
+		double maxAngle = 2*Math.PI;
 		int x=ww;
 		int w = H[u];
 		while (w>=0){
 			if (w!=ww){
 				if (getVertexID(w/3, (w+1)%3)==v||getVertexID(w/3, (w+2)%3)==v){
-					x=w;
-//					int p;
-//					if (getVertexID(w/3, (w+1)%3)==v)p=getVertexID(w/3, (w+2)%3); else p= getVertexID(w/3, (w+1)%3);
-//					double planeAngle = angle(G[z],G[u],G[v],G[p]);
-//					if (planeAngle<maxAngle){maxAngle=planeAngle;x=w;}
+//					x=w;
+					int p;
+					if (getVertexID(w/3, (w+1)%3)==v)p=getVertexID(w/3, (w+2)%3); else p= getVertexID(w/3, (w+1)%3);
+					double planeAngle = angle(G[z],G[u],G[v],G[p]);
+					if (planeAngle<maxAngle){maxAngle=planeAngle;x=w;}
 				}
 			}
 			w=L[w];

@@ -21,6 +21,7 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 	Tet [] tetids;
 	int maxTet;
 	int maxfaces;
+	int regularity;
 	
 	public OppositeVertex(){};
 	public OppositeVertex(Triangulation border, HashMap<Integer, Set<Integer>> interiorEdges, Integer[] oppositeVertex1,
@@ -31,11 +32,28 @@ public class OppositeVertex implements faceOperators, Iterable<Integer>{
 		this.oppositeVertex1 = oppositeVertex1;
 		this.maxTet = maxTet;
 	}
-
+	
+	public double computeRegularity(){
+		double wall=0;
+		for (int i=0;i<tetids.length;i++){
+			int k=0;
+			for (int j=0;j<4;j++){
+				try {
+					if (opposite(new Face(tetids[i],j)).t.interior)
+						k++;
+				} catch (BorderFaceException e) {
+				}
+			}
+			if (k==2) wall++;
+			if (k==3) wall+=3;
+			if (k==4) wall+=6;
+		}
+		return wall/(tetids.length*4);
+	}
 	public int storageCost(){
 //		return 2*border.sizeOfFaces()+oppositeVertex.length+interiorEdges.size();
 //		return border.storageCost()+oppositeVertex.length+interiorEdges.size();
-		return hashMapSize(interiorEdges)+hashMapSize(oppositeFaces)+oppositeVertex1.length+tetids.length+border.storageCost();
+		return hashMapSize(interiorEdges)+hashMapSize(oppositeFaces)+oppositeVertex1.length+4*tetids.length+border.storageCost();
 	}
 	
 	public int oppositeVertex(int face){

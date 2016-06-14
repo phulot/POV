@@ -58,7 +58,7 @@ public class POVjava extends PApplet {
 	public void setup() {
 	  myFace = loadImage("data/pic.jpg");  // load image from file pic.jpg in folder data *** replace that file with your pic of your own face
 	  textureMode(NORMAL);          
-	  meshName = "gear";
+	  meshName = "tahol";
 	  POV pov = POVBuilder.loadpov("data/"+meshName,0.1f);
 	  OppositeVertex op = OppositeVertexBuilder.loadFromPOV(pov);
 	  todisplay=Utils.removeOpFromPov(op, pov);

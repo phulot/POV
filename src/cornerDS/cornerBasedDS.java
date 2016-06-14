@@ -366,14 +366,18 @@ public class cornerBasedDS {
 	public Set<Integer> traversal(){
 		HashSet<Integer> set = new HashSet<>();
 		HashSet<Integer> s = new HashSet<>();
-		set.add(0);
+		set.add(DS.iterator().next());
 		while (!set.isEmpty()){
 			HashSet<Integer> temp = new HashSet<>();
 			for (Integer i : set){
+//				System.out.println(i);
 				for (int o=0;o<4;o++){
 					Integer t;
 					try {
-						t=tetraFromFace(DS.O(4*i+o));
+						if (i>=0)
+							t=tetraFromFace(DS.O(4*i+o));
+						else 
+							t=tetraFromFace(DS.O(4*i-o));
 						if (!s.contains(t)){
 							s.add(t);
 							temp.add(t);

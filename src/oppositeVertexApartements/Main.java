@@ -1,4 +1,4 @@
-package oppositeVertex;
+package oppositeVertexApartements;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -10,7 +10,10 @@ import cornerDS.cornerBasedDS;
 public class Main {
 
 	public static void main(String[] args) {
-		POV p = POVBuilder.loadPV("data/hinge.pov");
+		POV p = POVBuilder.createRandomMesh(10000, 1);
+//		POV p = POVBuilder.loadPV("data/gear.pov");
+//		Utils.computeHsurfaceT1(p);
+//		Utils.computeHsurfaceT2(p);
 //		double e = 0;
 //		for (int t:p){
 //			for (int i=0;i<12;i++){
@@ -38,21 +41,24 @@ public class Main {
 //		System.out.println("Neighbor err nbr "+k);
 		System.out.println(op.storageCost()+"     "+p.storageCost());
 //		System.out.println(op.oppositeFaces.size());
-		System.out.println("opposite Vertex Array Size " + op.oppositeVertex1.length);
+//		System.out.println("opposite Vertex Array Size " + op.oppositeVertexbackwall.length+ op.oppositeVertexbackwind.length+op.oppositeVertexfrontwall.length+op.oppositeVertexfrontwind.length);
 		System.out.println("interior edges size : "+op.hashMapSize(op.interiorEdges));
 		System.out.println("opposite face size : "+op.hashMapSize(op.oppositeFaces));
 		System.out.println(op.oppositeFaces.size());
 		System.out.println("tetids size : "+op.tetids.length);
 		System.out.println("border size "+op.border.storageCost());
-		k=0;
+//		k=0;
 		
-		for (Integer i : op){
-			if (i<op.maxfaces)k++;
-		}
+//		for (Integer i : op){
+//			if (i<op.maxfaces){
+//				System.out.println(i);
+//				k++;System.out.println(op.new Tet().fromInt(i));
+//			}
+//		}
 		System.out.println("number of ext tets : "+k);
 		k=0;
 		for (Integer v =0;v<op.border.sizeOfVertices();v++){
-			for (Integer l:op.border.incidentFaces(v))
+			for (Integer l:op.border.incidentCorner(v))
 				k++;
 		}
 		System.out.println(k/(double)op.border.sizeOfVertices());
